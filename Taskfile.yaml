@@ -1,0 +1,24 @@
+version: "3"
+
+tasks:
+  default:
+    cmds:
+      - task: generate
+  generate:
+    aliases:
+      - gen
+    desc: "Generate code from proto files"
+    cmds:
+      - go run ./cmd/sso --config=./config/config_local.yaml
+  test:
+    desc: "Launch all tests"
+    cmds:
+      - go test ./tests -count=1 -v
+  migrate:
+    desc: "Run all migrations"
+    cmds:
+      - go run ./cmd/migrator --migrations-path=./migrations
+  unmigrate:
+    desc: "Run all migrations"
+    cmds:
+      - go run ./cmd/migrator --migrations-path=./migrations --direction=down
