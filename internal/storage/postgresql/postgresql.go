@@ -8,7 +8,7 @@ import (
 )
 
 type Storage struct {
-	Db *sql.DB
+	db *sql.DB
 }
 
 func New(psqlInfo string) (*Storage, error) {
@@ -24,13 +24,13 @@ func New(psqlInfo string) (*Storage, error) {
 		panic(err)
 	}
 
-	fmt.Println("Successfully connected!")
+	fmt.Println("Successfully connected to database!")
 
-	return &Storage{Db: db}, nil
+	return &Storage{db: db}, nil
 }
 
 func (storage *Storage) Close() error {
-	err := storage.Db.Close()
+	err := storage.db.Close()
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func (storage *Storage) Close() error {
 func (storage *Storage) SaveStub(ctx context.Context, stub models.RestStub) (int64, error) {
 	const op = "storage.postgres.createUser"
 
-	_, err := storage.Db.Exec(
+	_, err := storage.db.Exec(
 		"INSERT INTO reststub (name, project_id, created_at, path, response_body) VALUES ($1, $2, $3, $4, $5)",
 		stub.Name, stub.ProjectId, "now", stub.Path, stub.ResponseBody,
 	)
@@ -65,7 +65,7 @@ func (storage *Storage) Stub(ctx context.Context, projectId string, stubId strin
 	const op = "storage.postgres.createUser"
 
 	var newStub models.RestStub
-	err := storage.Db.QueryRow(
+	err := storage.db.QueryRow(
 		"SELECT id, name, created_at, path, response_body FROM reststub WHERE id = $1 AND project_id = $2",
 		stubId, projectId,
 	).Scan(&newStub.ID, &newStub.Name, &newStub.CreatedAt, &newStub.Path, &newStub.ResponseBody)
@@ -78,7 +78,7 @@ func (storage *Storage) Stub(ctx context.Context, projectId string, stubId strin
 func (storage *Storage) Stubs(ctx context.Context, projectId string) ([]models.RestStub, error) {
 	const op = "storage.postgres.createUser"
 
-	rows, err := storage.Db.Query("SELECT * FROM reststub WHERE project_id = $1", projectId)
+	rows, err := storage.db.Query("SELECT * FROM reststub WHERE project_id = $1", projectId)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
