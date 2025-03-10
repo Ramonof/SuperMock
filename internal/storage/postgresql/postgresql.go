@@ -3,18 +3,18 @@ package postgresql
 import (
 	"SuperStub/internal/domain/models"
 	"context"
-	"database/sql"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 )
 
 type Storage struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
 func New(psqlInfo string) (*Storage, error) {
 	const op = "storage.postgresql.New"
 
-	db, err := sql.Open("postgres", psqlInfo)
+	db, err := sqlx.Connect("postgres", psqlInfo)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -37,11 +37,11 @@ func (storage *Storage) Close() error {
 	return nil
 }
 func (storage *Storage) SaveStub(ctx context.Context, stub models.RestStub) (int64, error) {
-	const op = "storage.postgres.createUser"
+	const op = "storage.postgres.SaveStub"
 
-	_, err := storage.db.Exec(
-		"INSERT INTO reststub (name, project_id, created_at, path, response_body) VALUES ($1, $2, $3, $4, $5)",
-		stub.Name, stub.ProjectId, "now", stub.Path, stub.ResponseBody,
+	_, err := storage.db.NamedExec(
+		"INSERT INTO reststub (name, project_id, created_at, path, response_body) VALUES (:name, :project_id, :created_at, :path, :response_body)",
+		&stub,
 	)
 	if err != nil {
 		//var sqlErr pq.Error
@@ -62,7 +62,7 @@ func (storage *Storage) SaveStub(ctx context.Context, stub models.RestStub) (int
 }
 
 func (storage *Storage) Stub(ctx context.Context, projectId string, stubId string) (models.RestStub, error) {
-	const op = "storage.postgres.createUser"
+	const op = "storage.postgres.Stub"
 
 	var newStub models.RestStub
 	err := storage.db.QueryRow(
@@ -77,21 +77,14 @@ func (storage *Storage) Stub(ctx context.Context, projectId string, stubId strin
 
 func (storage *Storage) Stubs(ctx context.Context, projectId string) ([]models.RestStub, error) {
 	const op = "storage.postgres.createUser"
+	var stubs []models.RestStub
 
-	rows, err := storage.db.Query("SELECT * FROM reststub WHERE project_id = $1", projectId)
+	err := storage.db.Select(&stubs, "SELECT * FROM reststub WHERE project_id = $1", projectId)
+
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	defer rows.Close()
 
-	var stubs []models.RestStub
-	for rows.Next() {
-		var stub models.RestStub
-		if err := rows.Scan(&stub.ID, &stub.Name, &stub.ProjectId, &stub.CreatedAt, &stub.Path, &stub.ResponseBody); err != nil {
-			return nil, err
-		}
-		stubs = append(stubs, stub)
-	}
 	return stubs, nil
 }
 
