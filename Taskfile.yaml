@@ -4,6 +4,9 @@ tasks:
   default:
     cmds:
       - task: generate
+  run:
+    cmds:
+      - go run cmd/grpc/main.go
   generate:
     aliases:
       - gen
