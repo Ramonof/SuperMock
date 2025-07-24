@@ -3,16 +3,18 @@ version: "3"
 tasks:
   default:
     cmds:
-      - task: generate
+      - task: run
+  init_submodule:
+    desc: "init git submodule"
+    aliases:
+      - init
+    cmds:
+      - git submodule init
+      - git submodule update
   run:
+    desc: "run mock server"
     cmds:
       - go run cmd/grpc/main.go
-  generate:
-    aliases:
-      - gen
-    desc: "Generate code from proto files"
-    cmds:
-      - go run ./cmd/sso --config=./config/config_local.yaml
   test:
     desc: "Launch all tests"
     cmds:
