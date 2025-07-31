@@ -7,6 +7,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jhump/protoreflect/desc/protoparse"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/dynamicpb"
 	"log"
@@ -104,6 +106,12 @@ type Res struct {
 //	}
 //}
 
+type serverKey struct{}
+
+func contextWithServer(ctx context.Context, server *grpc.Server) context.Context {
+	return context.WithValue(ctx, serverKey{}, server)
+}
+
 func main() {
 	flag.Parse()
 
@@ -135,9 +143,10 @@ func main() {
 	}
 
 	service := dynamic.NewService("helloworld.Greeter")
-	service.RegisterUnaryMethod("SayHello", messageRq, messageRs, func(ctx context.Context, in interface{}) (interface{}, error) {
+	service.RegisterUnaryMethod("SayHello2", messageRq, messageRs, func(ctx context.Context, in interface{}) (interface{}, error) {
 		out := messageRs.New()
 		inTyped := in.(protoreflect.Message)
+		//TODO dynamic mdRq?
 		name := inTyped.Get(mdRq.FindFieldByName("name").UnwrapField())
 		rsMessage := fmt.Sprintf("Hello %s!", name)
 		//md.FindFieldByName()
@@ -145,10 +154,37 @@ func main() {
 		out.Set(mdRs.FindFieldByName("message").UnwrapField(), protoreflect.ValueOfString(rsMessage))
 		return out, nil
 	})
-	s := dynamic.NewServer([]*dynamic.Service{service})
+	interceptor := grpc.UnknownServiceHandler(func(srv any, stream grpc.ServerStream) error {
+		fmt.Println("Unknown")
+		//ctx := stream.Context()
+
+		////m := new(dynamicpb.Message)
+		//parse(stream, messageRq)
+		//im := proto.Message(m)
+		if err := stream.RecvMsg(messageRq); err != nil {
+			return err
+		}
+		name := messageRq.Get(mdRq.FindFieldByName("name").UnwrapField())
+		rsMessage := fmt.Sprintf("Hello %s!", name)
+		messageRs.Set(mdRs.FindFieldByName("message").UnwrapField(), protoreflect.ValueOfString(rsMessage))
+
+		err := stream.SendMsg(messageRs)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	s := dynamic.NewServer([]*dynamic.Service{service}, interceptor)
 
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
+	}
+}
+
+func parse(stream grpc.ServerStream, m proto.Message) {
+	if err := stream.RecvMsg(m); err != nil {
+		panic(err)
 	}
 }

@@ -2,7 +2,7 @@ module SuperStub
 
 go 1.23.3
 
-replace google.golang.org/grpc => ./submodules/grpc-go
+replace google.golang.org/grpc => ./grpc-go-dynamic-service-fork
 
 require (
 	github.com/golang-migrate/migrate/v4 v4.18.2

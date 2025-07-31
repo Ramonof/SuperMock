@@ -4,13 +4,6 @@ tasks:
   default:
     cmds:
       - task: run
-  init_submodule:
-    desc: "init git submodule"
-    aliases:
-      - init
-    cmds:
-      - git submodule init
-      - git submodule update
   run:
     desc: "run mock server"
     cmds:
