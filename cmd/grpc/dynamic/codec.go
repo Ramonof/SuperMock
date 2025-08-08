@@ -6,12 +6,6 @@ import (
 
 const CodecName = "proto"
 
-//const CodecName = "proto"
-
-//func init() {
-//	encoding.RegisterCodec(&Codec{})
-//}
-
 type Codec struct{}
 
 func (c *Codec) Marshal(v interface{}) ([]byte, error) {

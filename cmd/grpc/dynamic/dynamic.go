@@ -77,8 +77,3 @@ func createMethodDesc(fullMethod string, m *unaryMethod) grpc.MethodDesc {
 func fullMethod(serviceName, methodName string) string {
 	return fmt.Sprintf("/%s/%s", serviceName, methodName)
 }
-
-//func Dynamic() {
-//	allTypesDesc := (*TestAllTypes)(nil).ProtoReflect().Descriptor()
-//	dynamicpb.NewMessage(allTypesDesc)
-//}
