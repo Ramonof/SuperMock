@@ -4,8 +4,11 @@ import (
 	"SuperStub/internal/domain/models"
 	"context"
 	"fmt"
+	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 )
+
+var queryBuilder = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
 type Storage struct {
 	db *sqlx.DB

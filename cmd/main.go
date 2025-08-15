@@ -3,8 +3,9 @@ package main
 import (
 	"SuperStub/cmd/grpc/dynamic"
 	"SuperStub/internal/config"
-	grpcService "SuperStub/internal/services/grpc"
-	"SuperStub/internal/services/rest"
+	g "SuperStub/internal/services/grpc"
+	"SuperStub/internal/services/project"
+	r "SuperStub/internal/services/rest"
 	"SuperStub/internal/storage/postgresql"
 	"context"
 	"errors"
@@ -126,24 +127,29 @@ func startRestServer(storage *postgresql.Storage, log *slog.Logger) *http.Server
 }
 
 func setupRouter(storage *postgresql.Storage) *mux.Router {
-	restService := rest.New(nil, storage, storage, storage, storage)
-	grpcService := grpcService.New(nil, storage, storage, storage, storage)
+	projectService := project.New(nil, storage, storage, storage, storage)
+	restService := r.New(nil, storage, storage, storage, storage)
+	grpcService := g.New(nil, storage, storage, storage, storage)
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/{project_id}/stub", restService.GetAllRestStubs).Methods("GET")
-	router.HandleFunc("/{project_id}/stub/{id}", restService.GetRestStubById).Methods("GET")
-	router.HandleFunc("/{project_id}/stub", restService.CreateRestStub).Methods("POST")
-	router.HandleFunc("/{project_id}/stub/{id}", restService.UpdateRestStub).Methods("PUT")
-	router.HandleFunc("/{project_id}/stub/{id}", restService.DeleteRestStub).Methods("DELETE")
+	router.HandleFunc("/projects", projectService.GetAll).Methods("GET")
+	router.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET")
+	router.HandleFunc("/projects", projectService.Create).Methods("POST")
 
-	router.HandleFunc("/{project_id}/{path}", restService.ServeStub).Methods("GET")
+	router.HandleFunc("/projects/{project_id}/stub", restService.GetAllRestStubs).Methods("GET")
+	router.HandleFunc("/projects/{project_id}/stub/{id}", restService.GetRestStubById).Methods("GET")
+	router.HandleFunc("/projects/{project_id}/stub", restService.CreateRestStub).Methods("POST")
+	router.HandleFunc("/projects/{project_id}/stub/{id}", restService.UpdateRestStub).Methods("PUT")
+	router.HandleFunc("/projects/{project_id}/stub/{id}", restService.DeleteRestStub).Methods("DELETE")
 
-	router.HandleFunc("/{project_id}/grpc/stub", grpcService.GetAllGrpcStubs).Methods("GET")
-	router.HandleFunc("/{project_id}/grpc/stub/{id}", grpcService.GetGrpcStubById).Methods("GET")
-	router.HandleFunc("/{project_id}/grpc/stub", grpcService.CreateGrpcStub).Methods("POST")
-	router.HandleFunc("/{project_id}/grpc/stub/{id}", grpcService.UpdateGrpcStub).Methods("PUT")
-	router.HandleFunc("/{project_id}/grpc/stub/{id}", grpcService.DeleteGrpcStub).Methods("DELETE")
+	router.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub).Methods("GET")
+
+	router.HandleFunc("/projects/{project_id}/grpc/stub", grpcService.GetAllGrpcStubs).Methods("GET")
+	router.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.GetGrpcStubById).Methods("GET")
+	router.HandleFunc("/projects/{project_id}/grpc/stub", grpcService.CreateGrpcStub).Methods("POST")
+	router.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.UpdateGrpcStub).Methods("PUT")
+	router.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.DeleteGrpcStub).Methods("DELETE")
 	return router
 }
 

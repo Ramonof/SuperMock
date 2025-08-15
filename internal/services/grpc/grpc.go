@@ -92,8 +92,12 @@ func (service *Grpc) CreateGrpcStub(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectId := params["project_id"]
 	err := json.NewDecoder(r.Body).Decode(&stub)
-	stub.ProjectId = projectId
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
+	stub.ProjectId, err = strconv.Atoi(projectId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -115,7 +119,12 @@ func (service *Grpc) UpdateGrpcStub(w http.ResponseWriter, r *http.Request) {
 	projectId := params["project_id"]
 	var stub models.GrpcStub
 	err := json.NewDecoder(r.Body).Decode(&stub)
-	stub.ProjectId = projectId
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	stub.ProjectId, err = strconv.Atoi(projectId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

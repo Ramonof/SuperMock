@@ -2,9 +2,8 @@ module SuperStub
 
 go 1.23.3
 
-replace google.golang.org/grpc => ./grpc-go-dynamic-service-fork
-
 require (
+	github.com/Masterminds/squirrel v1.5.4
 	github.com/golang-migrate/migrate/v4 v4.18.2
 	github.com/gorilla/mux v1.8.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0
@@ -17,7 +16,6 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
-	github.com/Masterminds/squirrel v1.5.4 // indirect
 	github.com/bufbuild/protocompile v0.14.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
