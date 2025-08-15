@@ -40,7 +40,7 @@ func (storage *Storage) SaveStub(ctx context.Context, stub models.RestStub) (int
 	const op = "storage.postgres.SaveStub"
 
 	_, err := storage.db.NamedExec(
-		"INSERT INTO reststub (name, project_id, created_at, path, response_body) VALUES (:name, :project_id, :created_at, :path, :response_body)",
+		"INSERT INTO reststubs (name, project_id, created_at, path, response_body) VALUES (:name, :project_id, :created_at, :path, :response_body)",
 		&stub,
 	)
 	if err != nil {
@@ -66,7 +66,7 @@ func (storage *Storage) Stub(ctx context.Context, projectId string, stubId strin
 
 	var newStub models.RestStub
 	err := storage.db.QueryRow(
-		"SELECT id, name, created_at, path, response_body FROM reststub WHERE id = $1 AND project_id = $2",
+		"SELECT id, name, created_at, path, response_body FROM reststubs WHERE id = $1 AND project_id = $2",
 		stubId, projectId,
 	).Scan(&newStub.ID, &newStub.Name, &newStub.CreatedAt, &newStub.Path, &newStub.ResponseBody)
 	if err != nil {
@@ -79,7 +79,7 @@ func (storage *Storage) Stubs(ctx context.Context, projectId string) ([]models.R
 	const op = "storage.postgres.createUser"
 	var stubs []models.RestStub
 
-	err := storage.db.Select(&stubs, "SELECT * FROM reststub WHERE project_id = $1", projectId)
+	err := storage.db.Select(&stubs, "SELECT * FROM reststubs WHERE project_id = $1", projectId)
 
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)

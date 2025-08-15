@@ -1,4 +1,4 @@
-create table reststub (
+create table reststubs (
     id serial PRIMARY KEY,
     name text NOT NULL UNIQUE,
     project_id text,

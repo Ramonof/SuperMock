@@ -7,7 +7,7 @@ tasks:
   run:
     desc: "run mock server"
     cmds:
-      - go run cmd/grpc/main.go
+      - go run cmd/grpc/main.go --config=./config/config_local.yaml
   test:
     desc: "Launch all tests"
     cmds:
@@ -15,8 +15,8 @@ tasks:
   migrate:
     desc: "Run all migrations"
     cmds:
-      - go run ./cmd/migrator --migrations-path=./migrations
+      - go run ./cmd/migrator --migrations-path=./migrations --direction=up
   unmigrate:
-    desc: "Run all migrations"
+    desc: "Unrun all migrations"
     cmds:
       - go run ./cmd/migrator --migrations-path=./migrations --direction=down

@@ -80,6 +80,10 @@ func main() {
 		messageRq := dynamicpb.NewMessage(rqFdName.UnwrapMessage())
 		messageRs := dynamicpb.NewMessage(rsFdName.UnwrapMessage())
 
+		if methodFd.IsClientStreaming() || methodFd.IsServerStreaming() {
+			//TODO
+		}
+
 		if err := stream.RecvMsg(messageRq); err != nil {
 			return err
 		}
@@ -101,3 +105,41 @@ func main() {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
+
+//Get the Field Descriptor for the New Field:
+//Use messageDescriptor.Fields().ByName("fieldName") or messageDescriptor.Fields().ByNumber(fieldNumber) to get the protoreflect.FieldDescriptor for the specific field you want to set.
+//Set the Field Value:
+//For scalar fields (e.g., string, int32, bool):
+//Go
+//
+//fieldDesc := messageDescriptor.Fields().ByName("your_scalar_field_name")
+//msg.Set(fieldDesc, protoreflect.ValueOf("your_value"))
+//For composite fields (e.g., nested messages, repeated fields, maps):
+//Nested Message:
+//Go
+//
+//nestedFieldDesc := messageDescriptor.Fields().ByName("your_nested_message_field_name")
+//nestedMsg := dynamicpb.NewMessage(nestedFieldDesc.Message()) // Create a new nested message
+//// Populate nestedMsg fields
+//msg.Set(nestedFieldDesc, protoreflect.ValueOfMessage(nestedMsg.ProtoReflect()))
+//repeated fields.
+//Go
+//
+//repeatedFieldDesc := messageDescriptor.Fields().ByName("your_repeated_field_name")
+//list := msg.Mutable(repeatedFieldDesc).List()
+//list.Append(protoreflect.ValueOf("item1"))
+//list.Append(protoreflect.ValueOf("item2"))
+//map fields.
+//Go
+//
+//mapFieldDesc := messageDescriptor.Fields().ByName("your_map_field_name")
+//m := msg.Mutable(mapFieldDesc).Map()
+//m.Set(protoreflect.ValueOf("key1").MapKey(), protoreflect.ValueOf("value1"))
+
+//j := `{	"@type": "echo.EchoRequest", "firstName": "sal", "lastName": "mander", "middleName": { "name": "a"}}`
+//a, err := anypb.New(echoRequestMessageType.New().Interface())
+//
+//err = protojson.Unmarshal([]byte(j), a)
+//fmt.Printf("Encoded EchoRequest using protojson and anypb %v\n", hex.EncodeToString(a.Value))
+
+//https://blog.salrashid.dev/articles/2022/grpc_wireformat/

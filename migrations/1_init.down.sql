@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS reststub;
+DROP TABLE IF EXISTS reststubs;
