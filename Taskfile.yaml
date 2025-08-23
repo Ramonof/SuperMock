@@ -7,7 +7,7 @@ tasks:
   run:
     desc: "run mock server"
     cmds:
-      - go run cmd/grpc/main.go --config=./config/config_local.yaml
+      - go run cmd/main.go --config=./config/config_local.yaml
   test:
     desc: "Launch all tests"
     cmds:

@@ -11,9 +11,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/jhump/protoreflect/desc/protoparse"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/types/dynamicpb"
+	"io"
+	"log"
 	"log/slog"
 	"net"
 	"net/http"
@@ -93,8 +97,56 @@ func startGrpcServer(storage *postgresql.Storage, log *slog.Logger, cfg config.G
 			return errors.New(errMsg)
 		}
 		service := sm[:pos]
+		method := sm[pos+1:]
+		protoName := service[:strings.LastIndex(sm, ".")]
+		log.Info(fmt.Sprintf("service: %s, method: %s, proto: %s", service, method, protoName))
 
-		return status.Error(12, fmt.Sprintf("unknown service %s", service))
+		protoString, err := storage.GetProtoByName(context.TODO(), protoName)
+		if err != nil {
+			log.Error("Failed to parse proto files: %v", err)
+			return err
+		}
+
+		fileName := fmt.Sprintf("%s.proto", protoName)
+		err = createProtoFile(fileName, protoString)
+		if err != nil {
+			log.Error("Failed to parse proto files: %v", err)
+			return err
+		}
+		defer os.Remove(fileName)
+
+		protoFiles := []string{fmt.Sprintf("%s.proto", protoName)}
+		parser := protoparse.Parser{}
+		fileDescriptors, err := parser.ParseFiles(protoFiles...)
+		if err != nil {
+			log.Error("Failed to parse proto files: %v", err)
+			return err
+		}
+
+		serviceFd := fileDescriptors[0].FindService(service)
+		methodFd := serviceFd.FindMethodByName(method)
+		rqFdName := methodFd.GetInputType()
+		rsFdName := methodFd.GetOutputType()
+		messageRq := dynamicpb.NewMessage(rqFdName.UnwrapMessage())
+		messageRs := dynamicpb.NewMessage(rsFdName.UnwrapMessage())
+
+		if methodFd.IsClientStreaming() || methodFd.IsServerStreaming() {
+			//TODO
+		}
+
+		if err := stream.RecvMsg(messageRq); err != nil {
+			return err
+		}
+		name := messageRq.Get(rqFdName.FindFieldByName("name").UnwrapField())
+		rsMessage := fmt.Sprintf("Hello %s!", name)
+		messageRs.Set(rsFdName.FindFieldByName("message").UnwrapField(), protoreflect.ValueOf(rsMessage))
+
+		err = stream.SendMsg(messageRs)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	})
 
 	s := dynamic.NewServer([]*dynamic.Service{newService}, interceptor)
@@ -104,6 +156,19 @@ func startGrpcServer(storage *postgresql.Storage, log *slog.Logger, cfg config.G
 		panic(err)
 	}
 	return s
+}
+
+func createProtoFile(filename, protoString string) error {
+	dst, err := os.Create(filename)
+	if err != nil {
+		log.Println("error creating file", err)
+		return err
+	}
+	defer dst.Close()
+	if _, err := io.Copy(dst, strings.NewReader(protoString)); err != nil {
+		return err
+	}
+	return nil
 }
 
 func startRestServer(storage *postgresql.Storage, log *slog.Logger) *http.Server {
@@ -129,7 +194,7 @@ func startRestServer(storage *postgresql.Storage, log *slog.Logger) *http.Server
 func setupRouter(storage *postgresql.Storage) *mux.Router {
 	projectService := project.New(nil, storage, storage, storage, storage)
 	restService := r.New(nil, storage, storage, storage, storage)
-	grpcService := g.New(nil, storage, storage, storage, storage)
+	grpcService := g.New(nil, storage, storage, storage, storage, storage)
 
 	router := mux.NewRouter()
 
@@ -144,6 +209,8 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	router.HandleFunc("/projects/{project_id}/stub/{id}", restService.DeleteRestStub).Methods("DELETE")
 
 	router.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub).Methods("GET")
+
+	router.HandleFunc("/projects/{project_id}/grpc/upload-proto", grpcService.UploadProto).Methods("POST")
 
 	router.HandleFunc("/projects/{project_id}/grpc/stub", grpcService.GetAllGrpcStubs).Methods("GET")
 	router.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.GetGrpcStubById).Methods("GET")

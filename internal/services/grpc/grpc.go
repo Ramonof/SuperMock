@@ -6,9 +6,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gorilla/mux"
+	"io"
+	"log"
 	"log/slog"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -46,16 +50,26 @@ type StubDeleter interface {
 	) (int64, error)
 }
 
+type ProtoSaver interface {
+	SaveProto(
+		ctx context.Context,
+		projectId string,
+		fileName string,
+	) (int64, error)
+}
+
 type Grpc struct {
 	log          *slog.Logger
 	stubSaver    StubSaver
 	stubProvider StubProvider
 	stubUpdater  StubUpdater
 	stubDeleter  StubDeleter
+
+	protoSaver ProtoSaver
 }
 
-func New(log *slog.Logger, stubSaver StubSaver, stubProvider StubProvider, updater StubUpdater, deleter StubDeleter) *Grpc {
-	return &Grpc{log, stubSaver, stubProvider, updater, deleter}
+func New(log *slog.Logger, stubSaver StubSaver, stubProvider StubProvider, updater StubUpdater, deleter StubDeleter, protoSaver ProtoSaver) *Grpc {
+	return &Grpc{log, stubSaver, stubProvider, updater, deleter, protoSaver}
 }
 
 func (service *Grpc) GetAllGrpcStubs(w http.ResponseWriter, r *http.Request) {
@@ -151,6 +165,48 @@ func (service *Grpc) DeleteGrpcStub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (service *Grpc) UploadProto(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	projectId := params["project_id"]
+
+	fileName, err := createFileFromRequest(w, r)
+	if err != nil {
+		return
+	}
+	defer os.Remove(fileName)
+
+	_, err = service.protoSaver.SaveProto(context.TODO(), projectId, fileName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func createFileFromRequest(w http.ResponseWriter, r *http.Request) (string, error) {
+	r.ParseMultipartForm(10 << 20) //10 MB
+	file, handler, err := r.FormFile("proto")
+	if err != nil {
+		log.Println("error retrieving file", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return "", err
+	}
+	defer file.Close()
+	fileName := fmt.Sprintf("1_%s", handler.Filename)
+	dst, err := os.Create(fileName)
+	if err != nil {
+		log.Println("error creating file", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return "", err
+	}
+	defer dst.Close()
+	if _, err := io.Copy(dst, file); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return "", err
+	}
+	fmt.Fprintf(w, "uploaded file")
+	return fileName, nil
 }
 
 //func (service *Grpc) ServeStub(w http.ResponseWriter, r *http.Request) {
