@@ -14,7 +14,7 @@ import (
 	"github.com/jhump/protoreflect/desc/protoparse"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/dynamicpb"
 	"io"
 	"log"
@@ -137,9 +137,16 @@ func startGrpcServer(storage *postgresql.Storage, log *slog.Logger, cfg config.G
 		if err := stream.RecvMsg(messageRq); err != nil {
 			return err
 		}
-		name := messageRq.Get(rqFdName.FindFieldByName("name").UnwrapField())
-		rsMessage := fmt.Sprintf("Hello %s!", name)
-		messageRs.Set(rsFdName.FindFieldByName("message").UnwrapField(), protoreflect.ValueOf(rsMessage))
+
+		jsonData := []byte(`{"message": "Hello Test!"}`)
+
+		unmarshaler := protojson.UnmarshalOptions{
+			DiscardUnknown: true, // Optional: Discard unknown fields in JSON
+		}
+		if err := unmarshaler.Unmarshal(jsonData, messageRs); err != nil {
+			log.Error("Failed to unmarshal JSON: %v", err)
+			return err
+		}
 
 		err = stream.SendMsg(messageRs)
 		if err != nil {
