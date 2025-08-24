@@ -131,17 +131,22 @@ func startGrpcServer(storage *postgresql.Storage, log *slog.Logger, cfg config.G
 		messageRs := dynamicpb.NewMessage(rsFdName.UnwrapMessage())
 
 		if methodFd.IsClientStreaming() || methodFd.IsServerStreaming() {
-			//TODO
+			//TODO separate unary and streaming
 		}
 
 		if err := stream.RecvMsg(messageRq); err != nil {
 			return err
 		}
 
-		jsonData := []byte(`{"message": "Hello Test!"}`)
+		stub, err := storage.GetGrpcStubByFullPath(context.TODO(), fmt.Sprintf("%s.%s", service, method))
+		if err != nil {
+			log.Error("Failed to get grpc stub: %v", err)
+			return err
+		}
+		jsonData := []byte(stub.ResponseBody)
 
 		unmarshaler := protojson.UnmarshalOptions{
-			DiscardUnknown: true, // Optional: Discard unknown fields in JSON
+			DiscardUnknown: true,
 		}
 		if err := unmarshaler.Unmarshal(jsonData, messageRs); err != nil {
 			log.Error("Failed to unmarshal JSON: %v", err)

@@ -14,7 +14,7 @@ func (storage *Storage) SaveGrpcStub(ctx context.Context, stub models.GrpcStub) 
 	const op = "storage.postgres.SaveStub"
 
 	_, err := storage.db.NamedExec(
-		"INSERT INTO grpc_stubs (name, project_id, created_at, service_id, method, response_body) VALUES (:name, :project_id, :created_at, :service_id,:method, :response_body)",
+		"INSERT INTO grpc_stubs (name, project_id, created_at, path, response_body) VALUES (:name, :project_id, :created_at, :path, :response_body)",
 		&stub,
 	)
 	if err != nil {
@@ -24,14 +24,28 @@ func (storage *Storage) SaveGrpcStub(ctx context.Context, stub models.GrpcStub) 
 	return 0, nil
 }
 
+func (storage *Storage) GetGrpcStubByFullPath(ctx context.Context, path string) (models.GrpcStub, error) {
+	const op = "storage.postgres.GetGrpcStubByFullPath"
+
+	var newStub models.GrpcStub
+	err := storage.db.QueryRow(
+		"SELECT id, name, created_at, path, response_body FROM grpc_stubs WHERE path = $1",
+		path,
+	).Scan(&newStub.ID, &newStub.Name, &newStub.CreatedAt, &newStub.Path, &newStub.ResponseBody)
+	if err != nil {
+		return models.GrpcStub{}, err
+	}
+	return newStub, nil
+}
+
 func (storage *Storage) GrpcStub(ctx context.Context, projectId string, stubId string) (models.GrpcStub, error) {
 	const op = "storage.postgres.Stub"
 
 	var newStub models.GrpcStub
 	err := storage.db.QueryRow(
-		"SELECT id, name, created_at, service_id, method, response_body FROM grpc_stubs WHERE id = $1 AND project_id = $2",
+		"SELECT id, name, created_at, path, response_body FROM grpc_stubs WHERE id = $1 AND project_id = $2",
 		stubId, projectId,
-	).Scan(&newStub.ID, &newStub.Name, &newStub.CreatedAt, &newStub.ServiceId, &newStub.Method, &newStub.ResponseBody)
+	).Scan(&newStub.ID, &newStub.Name, &newStub.CreatedAt, &newStub.Path, &newStub.ResponseBody)
 	if err != nil {
 		return models.GrpcStub{}, err
 	}

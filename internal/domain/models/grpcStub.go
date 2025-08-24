@@ -5,7 +5,6 @@ type GrpcStub struct {
 	Name         string `json:"name" db:"name"`
 	ProjectId    int    `json:"project_id" db:"project_id"`
 	CreatedAt    string `json:"created_at" db:"created_at"`
-	ServiceId    int    `json:"service_id" db:"service_id"`
-	Method       string `json:"method" db:"method"`
+	Path         string `json:"path" db:"path"`
 	ResponseBody string `json:"response_body" db:"response_body"`
 }

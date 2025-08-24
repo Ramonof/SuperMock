@@ -26,7 +26,6 @@ create table grpc_stubs (
     name text NOT NULL UNIQUE,
     project_id int REFERENCES projects(id),
     created_at text,
-    service_id int REFERENCES grpc_protos(id),
-    method text,
+    path text,
     response_body text
 );
