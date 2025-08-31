@@ -1,7 +1,7 @@
 package main
 
 import (
-	"SuperStub/cmd/grpc/dynamic"
+	"SuperStub/internal/dynamic"
 	"context"
 	"errors"
 	"flag"

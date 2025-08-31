@@ -1,8 +1,8 @@
 package main
 
 import (
-	"SuperStub/cmd/grpc/dynamic"
 	"SuperStub/internal/config"
+	"SuperStub/internal/dynamic"
 	g "SuperStub/internal/services/grpc"
 	"SuperStub/internal/services/project"
 	r "SuperStub/internal/services/rest"
