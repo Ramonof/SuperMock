@@ -45,14 +45,14 @@ const (
 func main() {
 	cfg := config.MustLoad()
 
-	log := setupLogger(cfg.Env)
+	logger := setupLogger(cfg.Env)
 
 	storage := setupStorage()
 
-	srvRest := startRestServer(storage, log)
-	srvGrpc := startGrpcServer(storage, log, cfg.GRPC)
+	srvRest := startRestServer(storage, logger)
+	srvGrpc := startGrpcServer(storage, logger, cfg.GRPC)
 
-	gracefulShutdown(srvRest, srvGrpc, log)
+	gracefulShutdown(srvRest, srvGrpc, logger)
 }
 
 func gracefulShutdown(srv *http.Server, srvGrpc *grpc.Server, log *slog.Logger) {
