@@ -10,12 +10,21 @@ import (
 
 type Config struct {
 	Env  string     `yaml:"env" env-default:"local"`
+	DB   DBConfig   `yaml:"db"`
 	GRPC GRPCConfig `yaml:"grpc"`
 }
 
 type GRPCConfig struct {
 	Port    int           `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
+}
+
+type DBConfig struct {
+	host     string `yaml:"host"`
+	port     int    `yaml:"port"`
+	user     string `yaml:"user"`
+	password string `yaml:"password"`
+	dbname   string `yaml:"dbname"`
 }
 
 func MustLoad() *Config {
