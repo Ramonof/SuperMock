@@ -10,7 +10,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jhump/protoreflect/desc/protoparse"
 	_ "github.com/lib/pq"
@@ -230,13 +229,31 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	grpcService := g.New(nil, storage, storage, storage, storage, storage)
 
 	router := mux.NewRouter()
+
+	router.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if origin := r.Header.Get("Origin"); origin != "" {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+				w.Header().Set("Access-Control-Allow-Headers",
+					"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+			}
+			// Stop here if its Preflighted OPTIONS request
+			if r.Method == "OPTIONS" {
+				return
+			}
+			// Lets Gorilla work
+			next.ServeHTTP(w, r)
+		})
+	})
+
 	subRouter := router.PathPrefix("/api/v1").Subrouter()
 
-	headersOk := handlers.AllowedHeaders([]string{"Origin,Content-Type,Authorization,Accept"})
-	//originsOk := handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
-	originsOk := handlers.AllowedOrigins([]string{"*"})
-	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
-	subRouter.Use(handlers.CORS(headersOk, originsOk, methodsOk))
+	//headersOk := handlers.AllowedHeaders([]string{"Origin,Content-Type,Authorization,Accept"})
+	////originsOk := handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
+	//originsOk := handlers.AllowedOrigins([]string{"*"})
+	//methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+	//subRouter.Use(handlers.CORS(headersOk, originsOk, methodsOk))
 
 	subRouter.HandleFunc("/projects", projectService.GetAll).Methods("GET")
 	subRouter.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET")
