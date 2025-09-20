@@ -10,6 +10,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jhump/protoreflect/desc/protoparse"
 	_ "github.com/lib/pq"
@@ -183,6 +184,26 @@ func createProtoFile(filename, protoString string) error {
 	return nil
 }
 
+type MyServer struct {
+	r *mux.Router
+}
+
+func (s *MyServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	fmt.Println("fasda")
+	if origin := req.Header.Get("Origin"); origin != "" {
+		rw.Header().Set("Access-Control-Allow-Origin", origin)
+		rw.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		rw.Header().Set("Access-Control-Allow-Headers",
+			"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	}
+
+	if req.Method == "OPTIONS" {
+		return
+	}
+
+	s.r.ServeHTTP(rw, req)
+}
+
 func startRestServer(storage *postgresql.Storage, log *slog.Logger) *http.Server {
 	router := setupRouter(storage)
 
@@ -209,26 +230,33 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	grpcService := g.New(nil, storage, storage, storage, storage, storage)
 
 	router := mux.NewRouter()
+	subRouter := router.PathPrefix("/api/v1").Subrouter()
 
-	router.HandleFunc("/projects", projectService.GetAll).Methods("GET")
-	router.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET")
-	router.HandleFunc("/projects", projectService.Create).Methods("POST")
+	headersOk := handlers.AllowedHeaders([]string{"Origin,Content-Type,Authorization,Accept"})
+	//originsOk := handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
+	originsOk := handlers.AllowedOrigins([]string{"*"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+	subRouter.Use(handlers.CORS(headersOk, originsOk, methodsOk))
 
-	router.HandleFunc("/projects/{project_id}/stub", restService.GetAllRestStubs).Methods("GET")
-	router.HandleFunc("/projects/{project_id}/stub/{id}", restService.GetRestStubById).Methods("GET")
-	router.HandleFunc("/projects/{project_id}/stub", restService.CreateRestStub).Methods("POST")
-	router.HandleFunc("/projects/{project_id}/stub/{id}", restService.UpdateRestStub).Methods("PUT")
-	router.HandleFunc("/projects/{project_id}/stub/{id}", restService.DeleteRestStub).Methods("DELETE")
+	subRouter.HandleFunc("/projects", projectService.GetAll).Methods("GET")
+	subRouter.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET")
+	subRouter.HandleFunc("/projects", projectService.Create).Methods("POST")
 
-	router.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub).Methods("GET")
+	subRouter.HandleFunc("/projects/{project_id}/stub", restService.GetAllRestStubs).Methods("GET")
+	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.GetRestStubById).Methods("GET")
+	subRouter.HandleFunc("/projects/{project_id}/stub", restService.CreateRestStub).Methods("POST")
+	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.UpdateRestStub).Methods("PUT")
+	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.DeleteRestStub).Methods("DELETE")
 
-	router.HandleFunc("/projects/{project_id}/grpc/upload-proto", grpcService.UploadProto).Methods("POST")
+	subRouter.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub).Methods("GET")
 
-	router.HandleFunc("/projects/{project_id}/grpc/stub", grpcService.GetAllGrpcStubs).Methods("GET")
-	router.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.GetGrpcStubById).Methods("GET")
-	router.HandleFunc("/projects/{project_id}/grpc/stub", grpcService.CreateGrpcStub).Methods("POST")
-	router.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.UpdateGrpcStub).Methods("PUT")
-	router.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.DeleteGrpcStub).Methods("DELETE")
+	subRouter.HandleFunc("/projects/{project_id}/grpc/upload-proto", grpcService.UploadProto).Methods("POST")
+
+	subRouter.HandleFunc("/projects/{project_id}/grpc/stub", grpcService.GetAllGrpcStubs).Methods("GET")
+	subRouter.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.GetGrpcStubById).Methods("GET")
+	subRouter.HandleFunc("/projects/{project_id}/grpc/stub", grpcService.CreateGrpcStub).Methods("POST")
+	subRouter.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.UpdateGrpcStub).Methods("PUT")
+	subRouter.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.DeleteGrpcStub).Methods("DELETE")
 	return router
 }
 
