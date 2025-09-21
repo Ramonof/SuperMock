@@ -230,22 +230,7 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 
 	router := mux.NewRouter()
 
-	router.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if origin := r.Header.Get("Origin"); origin != "" {
-				w.Header().Set("Access-Control-Allow-Origin", origin)
-				w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-				w.Header().Set("Access-Control-Allow-Headers",
-					"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-			}
-			// Stop here if its Preflighted OPTIONS request
-			if r.Method == "OPTIONS" {
-				return
-			}
-			// Lets Gorilla work
-			next.ServeHTTP(w, r)
-		})
-	})
+	router.Use(CORSMiddleware())
 
 	subRouter := router.PathPrefix("/api/v1").Subrouter()
 
@@ -275,6 +260,23 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	subRouter.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.UpdateGrpcStub).Methods("PUT")
 	subRouter.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.DeleteGrpcStub).Methods("DELETE")
 	return router
+}
+
+func CORSMiddleware() func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if origin := r.Header.Get("Origin"); origin != "" {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+				w.Header().Set("Access-Control-Allow-Headers",
+					"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+			}
+			if r.Method == "OPTIONS" {
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func setupStorage() *postgresql.Storage {
