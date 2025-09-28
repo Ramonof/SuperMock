@@ -233,6 +233,7 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	router.Use(CORSMiddleware())
 
 	subRouter := router.PathPrefix("/api/v1").Subrouter()
+	subRouter.Use(ContentTypeMiddleware())
 
 	subRouter.HandleFunc("/projects", projectService.GetAll).Methods("GET")
 	subRouter.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET")
@@ -268,6 +269,15 @@ func CORSMiddleware() func(next http.Handler) http.Handler {
 			if r.Method == "OPTIONS" {
 				return
 			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func ContentTypeMiddleware() func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
 			next.ServeHTTP(w, r)
 		})
 	}
