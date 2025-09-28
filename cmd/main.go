@@ -234,12 +234,6 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 
 	subRouter := router.PathPrefix("/api/v1").Subrouter()
 
-	//headersOk := handlers.AllowedHeaders([]string{"Origin,Content-Type,Authorization,Accept"})
-	////originsOk := handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
-	//originsOk := handlers.AllowedOrigins([]string{"*"})
-	//methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
-	//subRouter.Use(handlers.CORS(headersOk, originsOk, methodsOk))
-
 	subRouter.HandleFunc("/projects", projectService.GetAll).Methods("GET")
 	subRouter.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET")
 	subRouter.HandleFunc("/projects", projectService.Create).Methods("POST")
