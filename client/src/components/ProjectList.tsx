@@ -36,10 +36,10 @@ const ProjectList = () => {
 				fontWeight={"bold"}
 				textAlign={"center"}
 				my={2}
-				bgGradient='linear(to-l, #0b85f8, #00ffff)'
+				bgGradient="to-l" gradientFrom="#0bf827ff" gradientTo="#4000ffff"
 				bgClip='text'
 			>
-				Today's Tasks
+				Projects
 			</Text>
 			{isLoading && (
 				<Flex justifyContent={"center"} my={4}>
