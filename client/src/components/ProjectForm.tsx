@@ -14,12 +14,12 @@ const ProjectForm = () => {
 		mutationFn: async (e: React.FormEvent) => {
 			e.preventDefault();
 			try {
-				const res = await fetch(BASE_URL + `/Projects`, {
+				const res = await fetch(BASE_URL + `/projects`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify({ body: newProject }),
+					body: JSON.stringify({ name: newProject }),
 				});
 				const data = await res.json();
 
@@ -34,7 +34,7 @@ const ProjectForm = () => {
 			}
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["Projects"] });
+			queryClient.invalidateQueries({ queryKey: ["projects"] });
 		},
 		onError: (error: any) => {
 			alert(error.message);

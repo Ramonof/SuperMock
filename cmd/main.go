@@ -237,7 +237,7 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 
 	subRouter.HandleFunc("/projects", projectService.GetAll).Methods("GET")
 	subRouter.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET")
-	subRouter.HandleFunc("/projects", projectService.Create).Methods("POST")
+	subRouter.HandleFunc("/projects", projectService.Create).Methods("POST", "OPTIONS")
 
 	subRouter.HandleFunc("/projects/{project_id}/stub", restService.GetAllRestStubs).Methods("GET")
 	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.GetRestStubById).Methods("GET")
