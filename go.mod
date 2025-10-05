@@ -18,6 +18,7 @@ require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/bufbuild/protocompile v0.14.1 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/gorilla/handlers v1.5.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect

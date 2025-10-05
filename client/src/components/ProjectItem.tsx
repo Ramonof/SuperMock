@@ -1,4 +1,4 @@
-import { Badge, Box, Flex, Spinner, Text } from "@chakra-ui/react";
+import { Badge, Box, Flex, Link, Spinner, Text } from "@chakra-ui/react";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import type { Project } from "./ProjectList";
@@ -62,12 +62,21 @@ const ProjectItem = ({ Project }: { Project: Project }) => {
 				borderRadius={"lg"}
 				justifyContent={"space-between"}
 			>
-				<Text
+				{/* <Text
 					color={Project.completed ? "green.200" : "yellow.100"}
 					textDecoration={Project.completed ? "line-through" : "none"}
 				>
 					{Project.name}
-				</Text>
+				</Text> */}
+				<Link
+					color={Project.completed ? "green.200" : "yellow.100"}
+					textDecoration={Project.completed ? "line-through" : "none"}
+					variant="underline"
+					href={`/project/${Project.id}`}
+					colorPalette="teal"
+				>
+					{Project.name}
+				</Link>{" "}
 				{Project.completed && (
 					<Badge ml='1' colorScheme='green'>
 						Done

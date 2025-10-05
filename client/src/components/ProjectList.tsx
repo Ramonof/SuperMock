@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { BASE_URL } from "../App";
 
 export type Project = {
-	_id: number;
+	id: number;
 	name: string;
 	created_at: string;
 };

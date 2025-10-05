@@ -7,6 +7,7 @@ import (
 	"SuperStub/internal/services/project"
 	r "SuperStub/internal/services/rest"
 	"SuperStub/internal/storage/postgresql"
+	"SuperStub/internal/utils"
 	"context"
 	"errors"
 	"fmt"
@@ -229,11 +230,12 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	grpcService := g.New(nil, storage, storage, storage, storage, storage)
 
 	router := mux.NewRouter()
-
 	router.Use(CORSMiddleware())
+	router.Use(ContentTypeMiddleware())
+	router.HandleFunc("/api/v1/auth", utils.Authenticate).Methods("POST", "OPTIONS")
 
 	subRouter := router.PathPrefix("/api/v1").Subrouter()
-	subRouter.Use(ContentTypeMiddleware())
+	//subRouter.Use(utils.AuthMiddleware)
 
 	subRouter.HandleFunc("/projects", projectService.GetAll).Methods("GET")
 	subRouter.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET")
