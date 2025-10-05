@@ -235,7 +235,8 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	router.HandleFunc("/api/v1/auth", utils.Authenticate).Methods("POST", "OPTIONS")
 
 	subRouter := router.PathPrefix("/api/v1").Subrouter()
-	//subRouter.Use(utils.AuthMiddleware)
+	//stubsSubRouter := router.PathPrefix("").Subrouter()
+	subRouter.Use(utils.AuthMiddleware)
 
 	subRouter.HandleFunc("/projects", projectService.GetAll).Methods("GET")
 	subRouter.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET")
@@ -247,7 +248,7 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.UpdateRestStub).Methods("PUT")
 	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.DeleteRestStub).Methods("DELETE")
 
-	subRouter.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub).Methods("GET")
+	//subRouter.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub).Methods("GET")
 
 	subRouter.HandleFunc("/projects/{project_id}/grpc/upload-proto", grpcService.UploadProto).Methods("POST")
 
@@ -256,6 +257,9 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	subRouter.HandleFunc("/projects/{project_id}/grpc/stub", grpcService.CreateGrpcStub).Methods("POST")
 	subRouter.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.UpdateGrpcStub).Methods("PUT")
 	subRouter.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.DeleteGrpcStub).Methods("DELETE")
+
+	//TODO post, etc...
+	//stubsSubRouter.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub).Methods("GET")
 	return router
 }
 
@@ -263,6 +267,7 @@ func CORSMiddleware() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if origin := r.Header.Get("Origin"); origin != "" {
+				w.Header().Set("Access-Control-Allow-Credentials", "true")
 				w.Header().Set("Access-Control-Allow-Origin", origin)
 				w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 				w.Header().Set("Access-Control-Allow-Headers",

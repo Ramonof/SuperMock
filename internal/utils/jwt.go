@@ -19,9 +19,31 @@ func WriteError(msg string) []byte {
 	return data
 }
 
+type AuthRequest struct {
+	User string `json:"user"`
+	Pwd  string `json:"pwd"`
+}
+
+type AuthResponse struct {
+	User        string `json:"user"`
+	Pwd         string `json:"pwd"`
+	Roles       []int  `json:"roles"`
+	AccessToken string `json:"accessToken"`
+}
+
 func Authenticate(w http.ResponseWriter, r *http.Request) {
-	name := r.FormValue("programName")
-	password := r.FormValue("programPassword")
+
+	var req AuthRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	//name := r.FormValue("programName")
+	//password := r.FormValue("programPassword")
+	name := req.User
+	password := req.Pwd
 
 	if len(name) == 0 || len(password) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -36,7 +58,12 @@ func Authenticate(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.Header().Set("Authorization", "Bearer "+token)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("Token: " + token))
+			res := AuthResponse{name, password, []int{2001}, token}
+			err := json.NewEncoder(w).Encode(res)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+			//w.Write([]byte("Token: " + token))
 		}
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
