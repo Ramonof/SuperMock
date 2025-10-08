@@ -11,11 +11,15 @@ export type Project = {
 };
 
 const ProjectList = () => {
+	const token = localStorage.getItem('auth-token')
 	const { data: projects, isLoading } = useQuery<Project[]>({
 		queryKey: ["projects"],
 		queryFn: async () => {
 			try {
-				const res = await fetch(BASE_URL + "/projects");
+				const res = await fetch(BASE_URL + "/projects", {
+					headers: { Authorization: `Bearer ${token}`},
+					credentials: "include",
+				});
 				const data = await res.json();
 
 				if (!res.ok) {

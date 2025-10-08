@@ -14,13 +14,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
     auth: { user: "", pwd: "", roles: null, accessToken: null },
-    // setAuth: function (value: SetStateAction<Auth>): void {
-    //     this.auth = value
-    //     console.log("setAuth not implemented.")
-    //     throw new Error("Function not implemented.");
-    // }
     setAuth: () => {},
-    // setAuth: (auth: AuthState) => {}
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

@@ -19,7 +19,7 @@ const ProjectForm = () => {
 					headers: {
 						"Content-Type": "application/json",
 					},
-					// credentials: "include",
+					credentials: "include",
 					body: JSON.stringify({ name: newProject }),
 				});
 				const data = await res.json();

@@ -111,17 +111,13 @@ const Login = () => {
                 }
             );
             console.log(JSON.stringify(response?.data));
-            //console.log(JSON.stringify(response));
             const accessToken = response?.data?.accessToken;
             const roles = response?.data?.roles;
-            //TODO
             const userData = { user: user, pwd: pwd, roles: roles, accessToken: accessToken };
             setAuth(userData);
-            console.log("auth")
-            console.log(setAuth)
-            console.log(auth)
             setUser('');
             setPwd('');
+            localStorage.setItem('auth-token', accessToken)
             navigate(from, { replace: true });
         } catch (err : any) {
             if (!err?.response) {
