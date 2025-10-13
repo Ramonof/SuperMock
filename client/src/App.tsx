@@ -4,7 +4,7 @@ import ProjectForm from './components/ProjectForm';
 import ProjectList from './components/ProjectList';
 import { Route, Routes } from 'react-router';
 import Projects from './pages/Projects';
-import Main from './pages/Main';
+import Main from './pages/__root';
 import SideBar from './components/SideBar';
 import RequireAuth from './components/RequireAuth';
 import Login from './components/Login';

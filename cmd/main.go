@@ -232,11 +232,11 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	router := mux.NewRouter()
 	router.Use(CORSMiddleware())
 	router.Use(ContentTypeMiddleware())
-	router.HandleFunc("/api/v1/auth", utils.Authenticate).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/v1/login", utils.Authenticate).Methods("POST", "OPTIONS")
 
 	subRouter := router.PathPrefix("/api/v1").Subrouter()
-	//stubsSubRouter := router.PathPrefix("").Subrouter()
-	subRouter.Use(utils.AuthMiddleware)
+	stubsSubRouter := router.PathPrefix("").Subrouter()
+	//subRouter.Use(utils.AuthMiddleware)
 
 	subRouter.HandleFunc("/projects", projectService.GetAll).Methods("GET")
 	subRouter.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET")
@@ -244,7 +244,7 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 
 	subRouter.HandleFunc("/projects/{project_id}/stub", restService.GetAllRestStubs).Methods("GET")
 	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.GetRestStubById).Methods("GET")
-	subRouter.HandleFunc("/projects/{project_id}/stub", restService.CreateRestStub).Methods("POST")
+	subRouter.HandleFunc("/projects/{project_id}/stub", restService.CreateRestStub).Methods("POST", "OPTIONS")
 	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.UpdateRestStub).Methods("PUT")
 	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.DeleteRestStub).Methods("DELETE")
 
@@ -259,7 +259,7 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	subRouter.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.DeleteGrpcStub).Methods("DELETE")
 
 	//TODO post, etc...
-	//stubsSubRouter.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub).Methods("GET")
+	stubsSubRouter.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub).Methods("GET")
 	return router
 }
 

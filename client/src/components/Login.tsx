@@ -6,6 +6,8 @@ import { IoMdAdd } from "react-icons/io";
 import { BASE_URL } from "../App";
 import { useNavigate, useLocation } from "react-router";
 import useAuth from "../hooks/useAuth";
+import { createServerFn } from '@tanstack/react-start'
+import { redirect } from '@tanstack/react-router'
 
 export type Login = {
 	id: number;
@@ -13,67 +15,48 @@ export type Login = {
 	created_at: string;
 };
 
-// const Login = () => {
-//     const [newProject, setNewProject] = useState("");
+// Login server function
+export const loginFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { email: string; password: string }) => data)
+  .handler(async ({ data }) => {
+    // Verify credentials (replace with your auth logic)
+    const user = await authenticateUser(data.email, data.password)
 
-// 	const queryClient = useQueryClient();
+    if (!user) {
+      return { error: 'Invalid credentials' }
+    }
 
-//     // const { mutate: login, isPending: isLogedIn } = useQuery({
-//     //     mutationKey: ["login"],
-// 	// 	mutationFn: async (e: React.FormEvent) => {
-// 	// 		e.preventDefault();
-            
-//     //     }
-//     // });
+    // Create session
+    const session = await useAppSession()
+    await session.update({
+      userId: user.id,
+      email: user.email,
+    })
 
-//     const { data: login, isLoading } = useQuery<Login[]>({
-//             queryKey: ["projects"],
-//             queryFn: async () => {
-//                 try {
-//                     const res = await fetch(BASE_URL + `/auth`, {
-//                         method: "POST",
-//                         headers: {
-//                             "Content-Type": "application/json",
-//                         },
-//                         // credentials: "include",
-//                         body: JSON.stringify({ name: newProject }),
-//                     });
-//                     const data = await res.json();
+    // Redirect to protected area
+    throw redirect({ to: '/dashboard' })
+  })
 
-//                     if (!res.ok) {
-//                         throw new Error(data.error || "Something went wrong");
-//                     }
-//                     return data || [];
-//                 } catch (error) {
-//                     console.log(error);
-//                 }
-//             },
-//         });
+// Logout server function
+export const logoutFn = createServerFn({ method: 'POST' }).handler(async () => {
+  const session = await useAppSession()
+  await session.clear()
+  throw redirect({ to: '/' })
+})
 
-//     return (
-        
-//         <form onSubmit={auth}>
-//                     <Flex gap={2}>
-//                         <Input
-//                             type='text'
-//                             value={newProject}
-//                             onChange={(e) => setNewProject(e.target.value)}
-//                             ref={(input) => input && input.focus()}
-//                         />
-//                         <Button
-//                             mx={2}
-//                             type='submit'
-//                             _active={{
-//                                 transform: "scale(.97)",
-//                             }}
-//                         >
-//                             {isCreating ? <Spinner size={"xs"} /> : <IoMdAdd size={30} />}
-//                         </Button>
-//                     </Flex>
-//                 </form>
+// Get current user
+export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const session = await useAppSession()
+    const userId = session.get('userId')
 
-//     )
-// }
+    if (!userId) {
+      return null
+    }
+
+    return await getUserById(userId)
+  },
+)
 
 const Login = () => {
     const { auth, setAuth } = useAuth();

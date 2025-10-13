@@ -6,35 +6,32 @@ import { Provider } from './components/ui/provider.tsx'
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, createBrowserRouter, RouterProvider } from 'react-router'
 import {AuthProvider} from './context/AuthProvider.tsx'
+import { routeTree } from './routeTree.gen'
+import { createRouter } from '@tanstack/react-router'
 
 const queryClient = new QueryClient();
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <App />,
-  },
-  {
-    path: "/project/:ProjectId",
-    // loader: async ({ params }) => {
-    //   let team = await fetchTeam(params.teamId);
-    //   return { name: team.name };
-    // },
-    element: <App />,
+
+// Create a new router instance
+const router = createRouter({ routeTree })
+
+// Register the router instance for type safety
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
   }
-]);
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
     <AuthProvider>
     <Provider>
+    <RouterProvider router={router} />
     <App />
     {/* <RouterProvider router={router} /> */}
     {/* <App /> */}
     </Provider>
     </AuthProvider>
-    </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,
 )
