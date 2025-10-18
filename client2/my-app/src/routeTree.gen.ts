@@ -9,24 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProjectProjectIdRouteImport } from './routes/project.$projectId'
+import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedAboutRouteImport } from './routes/_authenticated/about'
-import { Route as ProjectProjectIdRestStubsRouteImport } from './routes/project_.$projectId.rest.stubs'
-import { Route as ProjectProjectIdRestStubsCreateRouteImport } from './routes/project_.$projectId.rest.stubs_.create'
+import { Route as AuthenticatedProjectProjectIdRouteImport } from './routes/_authenticated/project.$projectId'
+import { Route as AuthenticatedProjectProjectIdRestStubsRouteImport } from './routes/_authenticated/project_.$projectId.rest.stubs'
+import { Route as AuthenticatedProjectProjectIdRestStubsCreateRouteImport } from './routes/_authenticated/project_.$projectId.rest.stubs_.create'
+import { Route as AuthenticatedProjectProjectIdRestStubsStubIdRouteImport } from './routes/_authenticated/project_.$projectId.rest.stubs_.$stubId'
 
-const ProjectsRoute = ProjectsRouteImport.update({
-  id: '/projects',
-  path: '/projects',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -38,124 +39,134 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectProjectIdRoute = ProjectProjectIdRouteImport.update({
-  id: '/project/$projectId',
-  path: '/project/$projectId',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAboutRoute = AuthenticatedAboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const ProjectProjectIdRestStubsRoute =
-  ProjectProjectIdRestStubsRouteImport.update({
+const AuthenticatedProjectProjectIdRoute =
+  AuthenticatedProjectProjectIdRouteImport.update({
+    id: '/project/$projectId',
+    path: '/project/$projectId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedProjectProjectIdRestStubsRoute =
+  AuthenticatedProjectProjectIdRestStubsRouteImport.update({
     id: '/project_/$projectId/rest/stubs',
     path: '/project/$projectId/rest/stubs',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
-const ProjectProjectIdRestStubsCreateRoute =
-  ProjectProjectIdRestStubsCreateRouteImport.update({
+const AuthenticatedProjectProjectIdRestStubsCreateRoute =
+  AuthenticatedProjectProjectIdRestStubsCreateRouteImport.update({
     id: '/project_/$projectId/rest/stubs_/create',
     path: '/project/$projectId/rest/stubs/create',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedProjectProjectIdRestStubsStubIdRoute =
+  AuthenticatedProjectProjectIdRestStubsStubIdRouteImport.update({
+    id: '/project_/$projectId/rest/stubs_/$stubId',
+    path: '/project/$projectId/rest/stubs/$stubId',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/projects': typeof ProjectsRoute
-  '/about': typeof AuthenticatedAboutRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/project/$projectId': typeof ProjectProjectIdRoute
-  '/project/$projectId/rest/stubs': typeof ProjectProjectIdRestStubsRoute
-  '/project/$projectId/rest/stubs/create': typeof ProjectProjectIdRestStubsCreateRoute
+  '/projects': typeof AuthenticatedProjectsRoute
+  '/project/$projectId': typeof AuthenticatedProjectProjectIdRoute
+  '/project/$projectId/rest/stubs': typeof AuthenticatedProjectProjectIdRestStubsRoute
+  '/project/$projectId/rest/stubs/$stubId': typeof AuthenticatedProjectProjectIdRestStubsStubIdRoute
+  '/project/$projectId/rest/stubs/create': typeof AuthenticatedProjectProjectIdRestStubsCreateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/projects': typeof ProjectsRoute
-  '/about': typeof AuthenticatedAboutRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/project/$projectId': typeof ProjectProjectIdRoute
-  '/project/$projectId/rest/stubs': typeof ProjectProjectIdRestStubsRoute
-  '/project/$projectId/rest/stubs/create': typeof ProjectProjectIdRestStubsCreateRoute
+  '/projects': typeof AuthenticatedProjectsRoute
+  '/project/$projectId': typeof AuthenticatedProjectProjectIdRoute
+  '/project/$projectId/rest/stubs': typeof AuthenticatedProjectProjectIdRestStubsRoute
+  '/project/$projectId/rest/stubs/$stubId': typeof AuthenticatedProjectProjectIdRestStubsStubIdRoute
+  '/project/$projectId/rest/stubs/create': typeof AuthenticatedProjectProjectIdRestStubsCreateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/projects': typeof ProjectsRoute
-  '/_authenticated/about': typeof AuthenticatedAboutRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/project/$projectId': typeof ProjectProjectIdRoute
-  '/project_/$projectId/rest/stubs': typeof ProjectProjectIdRestStubsRoute
-  '/project_/$projectId/rest/stubs_/create': typeof ProjectProjectIdRestStubsCreateRoute
+  '/_authenticated/projects': typeof AuthenticatedProjectsRoute
+  '/_authenticated/project/$projectId': typeof AuthenticatedProjectProjectIdRoute
+  '/_authenticated/project_/$projectId/rest/stubs': typeof AuthenticatedProjectProjectIdRestStubsRoute
+  '/_authenticated/project_/$projectId/rest/stubs_/$stubId': typeof AuthenticatedProjectProjectIdRestStubsStubIdRoute
+  '/_authenticated/project_/$projectId/rest/stubs_/create': typeof AuthenticatedProjectProjectIdRestStubsCreateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/login'
-    | '/projects'
     | '/about'
+    | '/login'
     | '/dashboard'
+    | '/projects'
     | '/project/$projectId'
     | '/project/$projectId/rest/stubs'
+    | '/project/$projectId/rest/stubs/$stubId'
     | '/project/$projectId/rest/stubs/create'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/login'
-    | '/projects'
     | '/about'
+    | '/login'
     | '/dashboard'
+    | '/projects'
     | '/project/$projectId'
     | '/project/$projectId/rest/stubs'
+    | '/project/$projectId/rest/stubs/$stubId'
     | '/project/$projectId/rest/stubs/create'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/about'
     | '/login'
-    | '/projects'
-    | '/_authenticated/about'
     | '/_authenticated/dashboard'
-    | '/project/$projectId'
-    | '/project_/$projectId/rest/stubs'
-    | '/project_/$projectId/rest/stubs_/create'
+    | '/_authenticated/projects'
+    | '/_authenticated/project/$projectId'
+    | '/_authenticated/project_/$projectId/rest/stubs'
+    | '/_authenticated/project_/$projectId/rest/stubs_/$stubId'
+    | '/_authenticated/project_/$projectId/rest/stubs_/create'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AboutRoute: typeof AboutRoute
   LoginRoute: typeof LoginRoute
-  ProjectsRoute: typeof ProjectsRoute
-  ProjectProjectIdRoute: typeof ProjectProjectIdRoute
-  ProjectProjectIdRestStubsRoute: typeof ProjectProjectIdRestStubsRoute
-  ProjectProjectIdRestStubsCreateRoute: typeof ProjectProjectIdRestStubsCreateRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/projects': {
-      id: '/projects'
-      path: '/projects'
-      fullPath: '/projects'
-      preLoaderRoute: typeof ProjectsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -172,12 +183,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/project/$projectId': {
-      id: '/project/$projectId'
-      path: '/project/$projectId'
-      fullPath: '/project/$projectId'
-      preLoaderRoute: typeof ProjectProjectIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/projects': {
+      id: '/_authenticated/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof AuthenticatedProjectsRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
@@ -186,38 +197,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/about': {
-      id: '/_authenticated/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AuthenticatedAboutRouteImport
+    '/_authenticated/project/$projectId': {
+      id: '/_authenticated/project/$projectId'
+      path: '/project/$projectId'
+      fullPath: '/project/$projectId'
+      preLoaderRoute: typeof AuthenticatedProjectProjectIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/project_/$projectId/rest/stubs': {
-      id: '/project_/$projectId/rest/stubs'
+    '/_authenticated/project_/$projectId/rest/stubs': {
+      id: '/_authenticated/project_/$projectId/rest/stubs'
       path: '/project/$projectId/rest/stubs'
       fullPath: '/project/$projectId/rest/stubs'
-      preLoaderRoute: typeof ProjectProjectIdRestStubsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedProjectProjectIdRestStubsRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/project_/$projectId/rest/stubs_/create': {
-      id: '/project_/$projectId/rest/stubs_/create'
+    '/_authenticated/project_/$projectId/rest/stubs_/create': {
+      id: '/_authenticated/project_/$projectId/rest/stubs_/create'
       path: '/project/$projectId/rest/stubs/create'
       fullPath: '/project/$projectId/rest/stubs/create'
-      preLoaderRoute: typeof ProjectProjectIdRestStubsCreateRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedProjectProjectIdRestStubsCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/project_/$projectId/rest/stubs_/$stubId': {
+      id: '/_authenticated/project_/$projectId/rest/stubs_/$stubId'
+      path: '/project/$projectId/rest/stubs/$stubId'
+      fullPath: '/project/$projectId/rest/stubs/$stubId'
+      preLoaderRoute: typeof AuthenticatedProjectProjectIdRestStubsStubIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedAboutRoute: typeof AuthenticatedAboutRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
+  AuthenticatedProjectProjectIdRoute: typeof AuthenticatedProjectProjectIdRoute
+  AuthenticatedProjectProjectIdRestStubsRoute: typeof AuthenticatedProjectProjectIdRestStubsRoute
+  AuthenticatedProjectProjectIdRestStubsStubIdRoute: typeof AuthenticatedProjectProjectIdRestStubsStubIdRoute
+  AuthenticatedProjectProjectIdRestStubsCreateRoute: typeof AuthenticatedProjectProjectIdRestStubsCreateRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedAboutRoute: AuthenticatedAboutRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
+  AuthenticatedProjectProjectIdRoute: AuthenticatedProjectProjectIdRoute,
+  AuthenticatedProjectProjectIdRestStubsRoute:
+    AuthenticatedProjectProjectIdRestStubsRoute,
+  AuthenticatedProjectProjectIdRestStubsStubIdRoute:
+    AuthenticatedProjectProjectIdRestStubsStubIdRoute,
+  AuthenticatedProjectProjectIdRestStubsCreateRoute:
+    AuthenticatedProjectProjectIdRestStubsCreateRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -227,11 +256,8 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AboutRoute: AboutRoute,
   LoginRoute: LoginRoute,
-  ProjectsRoute: ProjectsRoute,
-  ProjectProjectIdRoute: ProjectProjectIdRoute,
-  ProjectProjectIdRestStubsRoute: ProjectProjectIdRestStubsRoute,
-  ProjectProjectIdRestStubsCreateRoute: ProjectProjectIdRestStubsCreateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

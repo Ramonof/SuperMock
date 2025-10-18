@@ -2,6 +2,7 @@ import { Flex, Spinner, Stack, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { BASE_URL } from "@/main";
 import RestStubItem from "./RestStubItem";
+import apiClient from "@/utils/request";
 
 
 export type RestStub = {
@@ -18,14 +19,12 @@ const RestStubList = ({ ProjectId }: { ProjectId: string }) => {
 		queryKey: ["projects"],
 		queryFn: async () => {
 			try {
-				const res = await fetch(BASE_URL + `/projects/` + ProjectId + `/stub`, {
-
+				const res = await apiClient({
+					url: BASE_URL + `/projects/` + ProjectId + `/stub`, 
+					method: 'get'
 				});
-				const data = await res.json();
+				const data = res.data
 
-				if (!res.ok) {
-					throw new Error(data.error || "Something went wrong");
-				}
 				return data || [];
 			} catch (error) {
 				console.log(error);
@@ -44,7 +43,7 @@ const RestStubList = ({ ProjectId }: { ProjectId: string }) => {
 				bgGradient='linear(to-l, #0bf827ff, #4000ffff)'
 				bgClip='text'
 			>
-				Stubs
+				 
 			</Text>
 			{isLoading && (
 				<Flex justifyContent={"center"} my={4}>

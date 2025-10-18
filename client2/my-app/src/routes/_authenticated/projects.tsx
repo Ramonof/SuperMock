@@ -26,7 +26,7 @@ import ProjectList from "@/components/project/ProjectList"
 
 // const queryClient = useQueryClient()
 
-export const Route = createFileRoute('/projects')({
+export const Route = createFileRoute('/_authenticated/projects')({
   // loader: () => queryClient.ensureQueryData(projectsQueryOptions),
   component: Projects,
 })

@@ -233,13 +233,14 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	router.Use(CORSMiddleware())
 	router.Use(ContentTypeMiddleware())
 	router.HandleFunc("/api/v1/login", utils.Authenticate).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/v1/validate-token", utils.ValidateToken).Methods("GET", "OPTIONS")
 
 	subRouter := router.PathPrefix("/api/v1").Subrouter()
 	stubsSubRouter := router.PathPrefix("").Subrouter()
-	//subRouter.Use(utils.AuthMiddleware)
+	subRouter.Use(utils.AuthMiddleware)
 
 	subRouter.HandleFunc("/projects", projectService.GetAll).Methods("GET")
-	subRouter.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET")
+	subRouter.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET", "OPTIONS")
 	subRouter.HandleFunc("/projects", projectService.Create).Methods("POST", "OPTIONS")
 
 	subRouter.HandleFunc("/projects/{project_id}/stub", restService.GetAllRestStubs).Methods("GET")

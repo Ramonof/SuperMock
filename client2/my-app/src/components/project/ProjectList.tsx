@@ -2,7 +2,8 @@ import { Flex, Spinner, Stack, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import ProjectItem from "./ProjectItem";
 import { BASE_URL } from "@/main";
-
+import axios from "@/utils/request";
+import apiClient from "@/utils/request";
 
 export type Project = {
 	id: number;
@@ -11,20 +12,20 @@ export type Project = {
 };
 
 const ProjectList = () => {
-	const token = localStorage.getItem('auth-token')
 	const { data: projects, isLoading } = useQuery<Project[]>({
 		queryKey: ["projects"],
 		queryFn: async () => {
 			try {
-				const res = await fetch(BASE_URL + "/projects", {
-					headers: { Authorization: `Bearer ${token}` },
-					credentials: "include",
+				const response = await apiClient({
+					url: BASE_URL + "/projects", 
+					method: 'get'
 				});
-				const data = await res.json();
+				// const res = response.data
+				const data = response.data
 
-				if (!res.ok) {
-					throw new Error(data.error || "Something went wrong");
-				}
+				// if (!res.ok) {
+				// 	throw new Error(data.error || "Something went wrong");
+				// }
 				return data || [];
 			} catch (error) {
 				console.log(error);

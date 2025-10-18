@@ -26,13 +26,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const token = localStorage.getItem('auth-token')
     if (token) {
       // Validate token with your API
-      fetch('/api/validate-token', {
+      fetch(BASE_URL + '/validate-token', {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((response) => response.json())
         .then((userData) => {
-          if (userData.valid) {
-            setUser(userData.user)
+          if (userData.accessToken) {
+            setUser(userData)
             setIsAuthenticated(true)
           } else {
             localStorage.removeItem('auth-token')
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(userData)
       setIsAuthenticated(true)
       // Store token for persistence
-      localStorage.setItem('auth-token', userData.token)
+      localStorage.setItem('auth-token', userData.accessToken)
     } else {
       throw new Error('Authentication failed')
     }

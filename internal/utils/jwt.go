@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var keymaker = "keymaker"
+
 type ErrorMessage struct {
 	Err string `json:"error"`
 }
@@ -32,7 +34,6 @@ type AuthResponse struct {
 }
 
 func Authenticate(w http.ResponseWriter, r *http.Request) {
-
 	var req AuthRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -100,7 +101,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 }
 
 func getToken(name string) (string, error) {
-	signingKey := []byte("keymaker")
+	signingKey := []byte(keymaker)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"name": name,
 		"role": "redpill",
@@ -109,8 +110,27 @@ func getToken(name string) (string, error) {
 	return tokenString, err
 }
 
+func ValidateToken(w http.ResponseWriter, r *http.Request) {
+	tokenString := r.Header.Get("Authorization")
+	tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
+	claims, err := verifyToken(tokenString)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("Error verifying JWT token: " + err.Error()))
+		return
+	}
+	name := claims.(jwt.MapClaims)["name"].(string)
+	//role := claims.(jwt.MapClaims)["role"].(string)
+
+	res := AuthResponse{name, "", []int{2001}, tokenString}
+	err = json.NewEncoder(w).Encode(res)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
 func verifyToken(tokenString string) (jwt.Claims, error) {
-	signingKey := []byte("keymaker")
+	signingKey := []byte(keymaker)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return signingKey, nil
 	})

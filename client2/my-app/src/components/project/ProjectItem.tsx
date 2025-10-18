@@ -87,7 +87,7 @@ const ProjectItem = ({ Project }: { Project: Project }) => {
 				)}
 				{!Project.completed && (
 					<Badge ml='1' colorScheme='yellow'>
-						In Progress
+						Rest
 					</Badge>
 				)}
 			</Flex>

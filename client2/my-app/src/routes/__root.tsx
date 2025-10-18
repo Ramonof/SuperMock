@@ -1,7 +1,9 @@
 import Navbar from '@/components/generic/navbar'
-import { Box, Flex, useColorModeValue, Text, Button } from '@chakra-ui/react'
+import { Box, Flex, useColorModeValue, Text, Button, useColorMode } from '@chakra-ui/react'
 import { createRootRouteWithContext, Link, Outlet, redirect, useLocation, useNavigate } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { IoMoon } from 'react-icons/io5'
+import { LuSun } from 'react-icons/lu'
 
 interface AuthState {
   isAuthenticated: boolean
@@ -17,6 +19,7 @@ interface MyRouterContext {
 function RootLayout() {
   const { auth } = Route.useRouteContext()
   
+  const { colorMode, toggleColorMode } = useColorMode();
   const location = useLocation()
   const navigate = useNavigate()
   function redirectOnClick(): void {
@@ -30,7 +33,7 @@ function RootLayout() {
 
   return (
     <>
-    <Navbar/>
+    {/* <Navbar/> */}
       <Box bg={useColorModeValue("gray.400", "gray.700")} px={4} my={4} borderRadius={"5"}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
         <Flex
@@ -40,7 +43,7 @@ function RootLayout() {
 						display={{ base: "none", sm: "flex" }}
 					>
         <Link to="/" className="[&.active]:font-bold">
-          Home
+          SuperMock
         </Link>{' '}
         <Link to="/about" className="[&.active]:font-bold">
           About
@@ -50,13 +53,17 @@ function RootLayout() {
         </Link>
         </Flex>
         <Flex alignItems={"center"} gap={3}>
-          {auth.isAuthenticated ? auth.user?.user : <Button onClick={redirectOnClick}>Sign In</Button>}
+          {/* Toggle Color Mode */}
+          <Button onClick={toggleColorMode}>
+            {colorMode === "light" ? <IoMoon /> : <LuSun size={20} />}
+          </Button>
+          {auth.isAuthenticated ? <Flex gap={3} h={16} alignItems={"center"} justifyContent={"space-between"}><Text> {auth.user?.user} </Text><Button onClick={auth.logout}>Sign Out</Button></Flex> : <Button onClick={redirectOnClick}>Sign In</Button>}
         </Flex>
         </Flex>
       </Box>
-      <hr />
+      {/* <hr /> */}
       <Outlet />
-      <TanStackRouterDevtools />
+      {/* <TanStackRouterDevtools /> */}
     </>
   )
 }
