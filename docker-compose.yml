@@ -1,5 +1,18 @@
 version: "3.9"
 services:
+  go-app:
+    build:
+      context: . # Use an image built from the specified dockerfile in the current directory.
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8080"
+    depends_on:
+      - postgres
+    env_file:
+      - test.env
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - supermock
+
   postgres:
     image: postgres:latest
     container_name: postgres_container
@@ -10,3 +23,8 @@ services:
       PGDATA: /data/postgres
     ports:
       - "5432:5432"
+    networks:
+      - supermock
+
+networks:
+  supermock:

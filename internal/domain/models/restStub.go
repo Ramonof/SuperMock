@@ -6,5 +6,6 @@ type RestStub struct {
 	ProjectId    int    `json:"project_id" db:"project_id"`
 	CreatedAt    string `json:"created_at" db:"created_at"`
 	Path         string `json:"path" db:"path"`
+	Method       string `json:"method" db:"method"`
 	ResponseBody string `json:"response_body" db:"response_body"`
 }

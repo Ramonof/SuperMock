@@ -7,7 +7,10 @@ tasks:
   run:
     desc: "run mock server"
     cmds:
-      - go run cmd/main.go --config=./config/config_local.yaml
+      - go run main.go --config=./config/config_local.yaml
+  run-compose:
+    cmds:
+      - docker-compose up
   test:
     desc: "Launch all tests"
     cmds:

@@ -1,7 +1,6 @@
 import { BASE_URL } from "@/main";
 import { Flex, Spinner, Link, Badge, Box } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Project } from "../../ProjectList";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { Link as TanstackLink } from "@tanstack/react-router";
@@ -64,15 +63,8 @@ const RestStubItem = ({ Project }: { Project: RestStub }) => {
                 borderRadius={"lg"}
                 justifyContent={"space-between"}
             >
-                {/* <Text
-                    color={Project.completed ? "green.200" : "yellow.100"}
-                    textDecoration={Project.completed ? "line-through" : "none"}
-                >
-                    {Project.name}
-                </Text> */}
                 <Link as={TanstackLink}
                     to={`/project/${Project.project_id}/rest/stubs/${Project.id}`}
-                    // to={"/project/$projectId"} params={{ projectId : "123" }}
                     color={Project.completed ? "green.200" : "yellow.100"}
                     textDecoration={Project.completed ? "line-through" : "none"}
                     variant="underline"

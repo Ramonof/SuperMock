@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"SuperStub/internal/config"
@@ -43,12 +43,12 @@ const (
 	envProd  = "prod"
 )
 
-func main() {
+func App() {
 	cfg := config.MustLoad()
 
 	logger := setupLogger(cfg.Env)
 
-	storage := setupStorage()
+	storage := setupStorage(cfg)
 
 	srvRest := startRestServer(storage, logger)
 	srvGrpc := startGrpcServer(storage, logger, cfg.GRPC)
@@ -208,8 +208,9 @@ func startRestServer(storage *postgresql.Storage, log *slog.Logger) *http.Server
 	router := setupRouter(storage)
 
 	srv := &http.Server{
-		Handler:      router,
-		Addr:         "127.0.0.1:8000",
+		Handler: router,
+		//Addr:         "127.0.0.1:8000",
+		Addr:         "0.0.0.0:8080",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
@@ -239,15 +240,15 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	stubsSubRouter := router.PathPrefix("").Subrouter()
 	subRouter.Use(utils.AuthMiddleware)
 
-	subRouter.HandleFunc("/projects", projectService.GetAll).Methods("GET")
+	subRouter.HandleFunc("/projects", projectService.GetAll).Methods("GET", "OPTIONS")
 	subRouter.HandleFunc("/projects/{project_id}", projectService.GetById).Methods("GET", "OPTIONS")
 	subRouter.HandleFunc("/projects", projectService.Create).Methods("POST", "OPTIONS")
 
-	subRouter.HandleFunc("/projects/{project_id}/stub", restService.GetAllRestStubs).Methods("GET")
-	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.GetRestStubById).Methods("GET")
+	subRouter.HandleFunc("/projects/{project_id}/stub", restService.GetAllRestStubs).Methods("GET", "OPTIONS")
+	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.GetRestStubById).Methods("GET", "OPTIONS")
 	subRouter.HandleFunc("/projects/{project_id}/stub", restService.CreateRestStub).Methods("POST", "OPTIONS")
-	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.UpdateRestStub).Methods("PUT")
-	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.DeleteRestStub).Methods("DELETE")
+	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.UpdateRestStub).Methods("PUT", "OPTIONS")
+	subRouter.HandleFunc("/projects/{project_id}/stub/{id}", restService.DeleteRestStub).Methods("DELETE", "OPTIONS")
 
 	//subRouter.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub).Methods("GET")
 
@@ -260,7 +261,7 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	subRouter.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.DeleteGrpcStub).Methods("DELETE")
 
 	//TODO post, etc...
-	stubsSubRouter.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub).Methods("GET")
+	stubsSubRouter.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub)
 	return router
 }
 
@@ -291,10 +292,11 @@ func ContentTypeMiddleware() func(next http.Handler) http.Handler {
 	}
 }
 
-func setupStorage() *postgresql.Storage {
+func setupStorage(cfg *config.Config) *postgresql.Storage {
+	dbCfg := cfg.DB
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+		dbCfg.Host, dbCfg.Port, dbCfg.User, dbCfg.Password, dbCfg.Dbname)
 	storage, err := postgresql.New(psqlInfo)
 	if err != nil {
 		panic(err)

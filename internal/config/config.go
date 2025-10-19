@@ -9,25 +9,29 @@ import (
 )
 
 type Config struct {
-	Env  string     `yaml:"env" env-default:"local"`
+	Env  string     `yaml:"env" env:"ENV" env-default:"local"`
 	DB   DBConfig   `yaml:"db"`
-	GRPC GRPCConfig `yaml:"grpc"`
+	GRPC GRPCConfig `yaml:"grpc" env-prefix:"GRPC_"`
 }
 
 type GRPCConfig struct {
-	Port    int           `yaml:"port"`
-	Timeout time.Duration `yaml:"timeout"`
+	Port    int           `yaml:"port" env:"PORT"`
+	Timeout time.Duration `yaml:"timeout" env:"TIMEOUT"`
 }
 
 type DBConfig struct {
-	host     string `yaml:"host"`
-	port     int    `yaml:"port"`
-	user     string `yaml:"user"`
-	password string `yaml:"password"`
-	dbname   string `yaml:"dbname"`
+	Host     string `yaml:"host" env:"DB_HOST" env-default:"localhost"`
+	Port     int    `yaml:"port" env:"DB_PORT" env-default:"5432"`
+	User     string `yaml:"user" env:"DB_USER" env-default:"postgres_user"`
+	Password string `yaml:"password" env:"DB_PASSWORD" env-default:"postgres_password"`
+	Dbname   string `yaml:"dbname" env:"DB_NAME" env-default:"postgres_db"`
 }
 
 func MustLoad() *Config {
+	cfg := funcName()
+	if cfg.Env != "local" {
+		return &cfg
+	}
 	configPath := fetchConfigPath()
 	if configPath == "" {
 		panic("config path is empty")
@@ -38,13 +42,23 @@ func MustLoad() *Config {
 		panic("config file does not exist: " + configPath)
 	}
 
-	var cfg Config
+	//var cfg Config
 
 	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
 		panic("config path is empty: " + err.Error())
 	}
 
 	return &cfg
+}
+
+func funcName() Config {
+	var cfg Config
+
+	err := cleanenv.ReadEnv(&cfg)
+	if err != nil {
+		panic(err)
+	}
+	return cfg
 }
 
 func MustLoadPath(configPath string) *Config {

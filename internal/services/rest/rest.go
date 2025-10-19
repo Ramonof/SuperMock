@@ -117,6 +117,7 @@ func (service *Rest) UpdateRestStub(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id := params["id"]
 	projectId := params["project_id"]
+	stubId := params["id"]
 	var stub models.RestStub
 	err := json.NewDecoder(r.Body).Decode(&stub)
 	if err != nil {
@@ -125,6 +126,12 @@ func (service *Rest) UpdateRestStub(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stub.ProjectId, err = strconv.Atoi(projectId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	stub.ID, err = strconv.Atoi(stubId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -156,8 +163,10 @@ func (service *Rest) DeleteRestStub(w http.ResponseWriter, r *http.Request) {
 func (service *Rest) ServeStub(w http.ResponseWriter, r *http.Request) {
 	var stubs []models.RestStub
 	params := mux.Vars(r)
+	method := r.Method
 	projectId := params["project_id"]
-	path := params["path"]
+	path := "/" + params["path"]
+
 	stubs, err := service.stubProvider.Stubs(context.TODO(), projectId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -165,7 +174,7 @@ func (service *Rest) ServeStub(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, stub := range stubs {
-		if stub.Path == path {
+		if stub.Path == path && (stub.Method == "ANY" || stub.Method == method) {
 			var jsonMap map[string]interface{}
 			json.Unmarshal([]byte(stub.ResponseBody), &jsonMap)
 			json.NewEncoder(w).Encode(jsonMap)

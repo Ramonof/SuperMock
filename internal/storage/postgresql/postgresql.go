@@ -43,7 +43,7 @@ func (storage *Storage) SaveStub(ctx context.Context, stub models.RestStub) (int
 	const op = "storage.postgres.SaveStub"
 
 	_, err := storage.db.NamedExec(
-		"INSERT INTO reststubs (name, project_id, created_at, path, response_body) VALUES (:name, :project_id, :created_at, :path, :response_body)",
+		"INSERT INTO reststubs (name, project_id, created_at, path, method, response_body) VALUES (:name, :project_id, :created_at, :path, :method, :response_body)",
 		&stub,
 	)
 	if err != nil {
@@ -68,10 +68,14 @@ func (storage *Storage) Stub(ctx context.Context, projectId string, stubId strin
 	const op = "storage.postgres.Stub"
 
 	var newStub models.RestStub
-	err := storage.db.QueryRow(
-		"SELECT id, name, created_at, path, response_body FROM reststubs WHERE id = $1 AND project_id = $2",
-		stubId, projectId,
-	).Scan(&newStub.ID, &newStub.Name, &newStub.CreatedAt, &newStub.Path, &newStub.ResponseBody)
+	//err := storage.db.QueryRow(
+	//	"SELECT id, name, created_at, path, response_body FROM reststubs WHERE id = $1 AND project_id = $2",
+	//	stubId, projectId,
+	//).Scan(&newStub.ID, &newStub.Name, &newStub.CreatedAt, &newStub.Path, &newStub.ResponseBody)
+	err := storage.db.Get(
+		&newStub,
+		"SELECT * FROM reststubs WHERE id = $1 AND project_id = $2",
+		stubId, projectId)
 	if err != nil {
 		return models.RestStub{}, err
 	}
@@ -92,7 +96,22 @@ func (storage *Storage) Stubs(ctx context.Context, projectId string) ([]models.R
 }
 
 func (storage *Storage) UpdateStub(ctx context.Context, stub models.RestStub) (int64, error) {
-	//TODO
+	const op = "storage.postgres.SaveStub"
+
+	_, err := storage.db.NamedExec(
+		"update reststubs set name=:name, project_id=:project_id, created_at=:created_at, path=:path, method=:method, response_body=:response_body where id=:id",
+		&stub,
+	)
+	if err != nil {
+		//var sqlErr pq.Error
+		//
+		//if errors.As(err, &sqlErr) && sqlErr.ExtendedCode == pq.ErrConstraintUnique {
+		//	return 0, fmt.Errorf("%s: %w", op, storage.ErrUserExists)
+		//}
+
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
 	return 0, nil
 }
 
