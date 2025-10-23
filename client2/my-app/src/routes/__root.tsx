@@ -34,7 +34,7 @@ function RootLayout() {
   return (
     <>
     {/* <Navbar/> */}
-      <Box bg={useColorModeValue("gray.400", "gray.700")} px={4} my={4} borderRadius={"5"}>
+      <Box bg={useColorModeValue("gray.400", "gray.700")} px={4} my={4} borderRadius={"5"} width={'100%'}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
         <Flex
 						justifyContent={"center"}

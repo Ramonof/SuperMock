@@ -30,7 +30,7 @@ const ProjectInfo = ({ ProjectId }: { ProjectId: string }) => {
                         justifyContent={"space-between"}
                     >
                         <Link as={TanstackLink}
-                            to={`/project/${ProjectId}/rest/stubs`}
+                            to={`/project/${ProjectId}/rest/stubs/refactorme`}
                             color={"yellow.100"}
                             variant="underline"
                             colorPalette="teal"

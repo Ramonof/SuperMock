@@ -1,9 +1,11 @@
 import ProjectName from "@/components/generic/ProjectName"
 import RestStubFullForm from "@/components/stub/rest/RestStubFullForm"
+import type { RestStub } from "@/components/stub/rest/RestStubList"
 import RestStubList from "@/components/stub/rest/RestStubList"
 import StubsInfo from "@/components/stub/rest/StubsInfo"
 import { Stack, Container, VStack, HStack, Grid, GridItem, Flex, Box } from "@chakra-ui/react"
 import { createFileRoute } from "@tanstack/react-router"
+import { useState } from "react"
 
 export const Route = createFileRoute('/_authenticated/project_/$projectId/rest/stubs_/$stubId')({
   component: RestStubs,
@@ -11,12 +13,13 @@ export const Route = createFileRoute('/_authenticated/project_/$projectId/rest/s
 
 function RestStubs() {
   const { projectId, stubId } = Route.useParams()
+  const [restStubs, setRestStubs] = useState<RestStub[]>([]);
   
   return (
       <>
         <ProjectName ProjectId={projectId}/>
         <StubsInfo ProjectId={projectId}/>
-        <Grid
+        <Grid width={'100%'}
           templateAreas={`"header header"
                           "nav main"
                           "nav footer"`}
@@ -38,10 +41,19 @@ function RestStubs() {
               <Box pr={10}
                 borderRight={"1px"}
                 borderColor={"gray.600"}>
-                <RestStubList ProjectId={projectId}/>
+                <RestStubList 
+                  ProjectId={projectId}
+                  restStubs={restStubs}
+                  setRestStubs={setRestStubs}
+                />
               </Box>
               <Box>
-                <RestStubFullForm ProjectId={projectId} StubId={stubId}/>
+                <RestStubFullForm 
+                ProjectId={projectId} 
+                StubId={stubId}
+                restStubs={restStubs}
+                setRestStubs={setRestStubs}
+                />
               </Box>
             </Grid>
           </GridItem>

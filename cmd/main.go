@@ -261,7 +261,10 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	subRouter.HandleFunc("/projects/{project_id}/grpc/stub/{id}", grpcService.DeleteGrpcStub).Methods("DELETE")
 
 	//TODO post, etc...
-	stubsSubRouter.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub)
+	//stubsSubRouter.HandleFunc("/projects/{project_id}/{path}", restService.ServeStub)
+	stubsSubRouter.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		restService.ServeStub(w, r)
+	})
 	return router
 }
 

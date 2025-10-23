@@ -1,4 +1,5 @@
 import { BASE_URL } from "@/main";
+import apiClient from "@/utils/request";
 import { Flex, Input, Button, Spinner, Stack, Text } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -19,18 +20,11 @@ const RestStubForm = ({ ProjectId }: { ProjectId: string }) => {
 		mutationFn: async (e: React.FormEvent) => {
 			e.preventDefault();
 			try {
-				const res = await fetch(BASE_URL + `/projects/` + ProjectId + `/stub`, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ name: newRestStubName, path: newRestStubPath, response_body: newRestStubResponseBody }),
+				const res = await apiClient({
+					url: BASE_URL + `/projects/` + ProjectId + `/stub`, 
+					method: 'POST',
+					data: JSON.stringify({ name: newRestStubName, path: newRestStubPath, response_body: newRestStubResponseBody }),
 				});
-				const data = await res.json();
-
-				if (!res.ok) {
-					throw new Error(data.error || "Something went wrong");
-				}
 
 				setNewRestStubName("");
 				setNewRestStubPath("");
@@ -39,7 +33,7 @@ const RestStubForm = ({ ProjectId }: { ProjectId: string }) => {
 					to: '/project/$projectId/rest/stubs',
 					params: { projectId: ProjectId },
 				})
-				return data;
+				return res;
 			} catch (error: any) {
 				throw new Error(error);
 			}

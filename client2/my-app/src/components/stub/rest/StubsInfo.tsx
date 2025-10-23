@@ -40,7 +40,7 @@ const StubsInfo = ({ ProjectId }: { ProjectId: string }) => {
                     </HStack>
                 </Link>
             </Box>
-            <Divider p={1} />
+            <Divider p={1} width={'50%'} />
         </>
     )
 };

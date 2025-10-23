@@ -11,22 +11,25 @@ import reportWebVitals from './reportWebVitals.ts'
 import { ChakraProvider } from '@chakra-ui/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuth, AuthProvider } from './context/auth.tsx'
+import { getRouter } from './router.tsx'
 
-export const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:8000/api/v1" : "/api";
+export const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:8080/api/v1" : "/api";
 
 const queryClient = new QueryClient()
 
 // Create a new router instance
-const router = createRouter({
-  routeTree,
-  context: {
-    auth: undefined!,
-  },
-  defaultPreload: 'intent',
-  scrollRestoration: true,
-  defaultStructuralSharing: true,
-  defaultPreloadStaleTime: 0,
-})
+// const router = createRouter({
+//   routeTree,
+//   context: {
+//     auth: undefined!,
+//   },
+//   defaultPreload: 'intent',
+//   scrollRestoration: true,
+//   defaultStructuralSharing: true,
+//   defaultPreloadStaleTime: 0,
+// })
+
+const router = getRouter()
 
 function InnerApp() {
   const auth = useAuth()
@@ -44,6 +47,7 @@ function App() {
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
   interface Register {
+    ssr: true,
     router: typeof router
   }
 }

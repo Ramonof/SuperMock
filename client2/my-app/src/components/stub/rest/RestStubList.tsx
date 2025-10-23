@@ -15,7 +15,7 @@ export type RestStub = {
     response_body: string;
 };
 
-const RestStubList = ({ ProjectId }: { ProjectId: string }) => {
+const RestStubList = ({ ProjectId, restStubs, setRestStubs}: { ProjectId: string, restStubs: RestStub[], setRestStubs: React.Dispatch<React.SetStateAction<RestStub[]>> }) => {
 	const { data: projects, isLoading } = useQuery<RestStub[]>({
 		queryKey: ["projects"],
 		queryFn: async () => {
@@ -26,6 +26,7 @@ const RestStubList = ({ ProjectId }: { ProjectId: string }) => {
 				});
 				const data = res.data
 
+				setRestStubs(data)
 				return data || [];
 			} catch (error) {
 				console.log(error);
@@ -52,7 +53,7 @@ const RestStubList = ({ ProjectId }: { ProjectId: string }) => {
 				</Flex>
 			)}
 			<Stack gap={3}>
-				{projects?.map((Project) => (
+				{restStubs?.map((Project) => (
 					<RestStubItem key={Project.id} Project={Project} />
 				))}
 			</Stack>

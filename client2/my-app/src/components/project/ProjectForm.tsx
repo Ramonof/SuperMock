@@ -1,4 +1,5 @@
 import { BASE_URL } from "@/main";
+import apiClient from "@/utils/request";
 import { Flex, Input, Button, Spinner } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -14,22 +15,13 @@ const ProjectForm = () => {
 		mutationFn: async (e: React.FormEvent) => {
 			e.preventDefault();
 			try {
-				const res = await fetch(BASE_URL + `/projects`, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					credentials: "include",
-					body: JSON.stringify({ name: newProject }),
+				const res = await apiClient({
+					url: BASE_URL + `/projects`, 
+					method: 'POST',
+					data: JSON.stringify({ name: newProject }),
 				});
-				const data = await res.json();
-
-				if (!res.ok) {
-					throw new Error(data.error || "Something went wrong");
-				}
-
 				setNewProject("");
-				return data;
+				return res;
 			} catch (error: any) {
 				throw new Error(error);
 			}

@@ -13,7 +13,7 @@ import CodeMirror from '@uiw/react-codemirror';
 import React from "react";
 import { linter } from "@codemirror/lint";
 
-const RestStubFullForm = ({ ProjectId, StubId }: { ProjectId: string, StubId: string }) => {
+const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { ProjectId: string, StubId: string, restStubs: RestStub[], setRestStubs: React.Dispatch<React.SetStateAction<RestStub[]>> }) => {
 
     const [value, setValue] = React.useState("console.log('hello world!');");
     const onChange = React.useCallback((val: React.SetStateAction<string>, viewUpdate: any) => {
@@ -21,37 +21,6 @@ const RestStubFullForm = ({ ProjectId, StubId }: { ProjectId: string, StubId: st
         setValue(val);
         setNewRestStubResponseBody(val)
     }, []);
-
-    // const editorRef = useRef<HTMLDivElement>(null);
-
-//     useEffect(() => {
-//         if (editorRef.current) {
-            
-//         // const view = new EditorView({
-//         //     parent: document.getElementById("editor-container")!,
-//         //     doc: `{"version": "9.99.99", "data": [1, 2, 3]}`,
-//         //     extensions: [basicSetup, json()]
-//         // })
-//             const view = new EditorView({
-//                 doc: `{
-//     "version": "9.99.99",
-//     "data": [1, 2, 3]
-// }`,
-//                 parent: editorRef.current!,
-//                 extensions: [oneDark, basicSetup, json(), linter(jsonParseLinter())]
-//             });
-        
-//         return () => {
-//             view.destroy(); // Clean up the editor instance on component unmount
-//         };
-//         }
-//     }, []);
-
-    // const view = new EditorView({
-    //     parent: document.getElementById("editor-container")!,
-    //     doc: `{"version": "9.99.99", "data": [1, 2, 3]}`,
-    //     extensions: [basicSetup, json()]
-    // })
 
     const [newRestStubName, setNewRestStubName] = useState("");
     const [newRestStubPath, setNewRestStubPath] = useState("");
@@ -101,6 +70,8 @@ const RestStubFullForm = ({ ProjectId, StubId }: { ProjectId: string, StubId: st
                     data: JSON.stringify({ name: newRestStubName, path: newRestStubPath, method: newRestStubMethod, response_body: newRestStubResponseBody }),
 				});
 
+                setRestStubs(restStubs.map(item => (item.id == res.data.id ? res.data : item)));
+                
                 // setNewRestStubName("");
                 // setNewRestStubPath("");
                 // setNewRestStubMethod("")

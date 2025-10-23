@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type StubSaver interface {
@@ -103,6 +104,9 @@ func (service *Rest) CreateRestStub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !strings.HasPrefix(stub.Path, "/") {
+		stub.Path = "/" + stub.Path
+	}
 	_, err = service.stubSaver.SaveStub(context.TODO(), stub)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -137,6 +141,9 @@ func (service *Rest) UpdateRestStub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !strings.HasPrefix(stub.Path, "/") {
+		stub.Path = "/" + stub.Path
+	}
 	_, err = service.stubUpdater.UpdateStub(context.TODO(), stub)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -161,11 +168,16 @@ func (service *Rest) DeleteRestStub(w http.ResponseWriter, r *http.Request) {
 }
 
 func (service *Rest) ServeStub(w http.ResponseWriter, r *http.Request) {
+	pathVars := strings.SplitN(r.RequestURI, "/", 4)
+	if len(pathVars) != 4 || pathVars[1] != "projects" {
+		http.Error(w, "404 page not found", http.StatusNotFound)
+		return
+	}
+
 	var stubs []models.RestStub
-	params := mux.Vars(r)
 	method := r.Method
-	projectId := params["project_id"]
-	path := "/" + params["path"]
+	projectId := pathVars[2]
+	path := "/" + pathVars[3]
 
 	stubs, err := service.stubProvider.Stubs(context.TODO(), projectId)
 	if err != nil {

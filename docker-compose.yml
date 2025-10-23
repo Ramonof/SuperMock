@@ -5,7 +5,7 @@ services:
       context: . # Use an image built from the specified dockerfile in the current directory.
       dockerfile: Dockerfile
     ports:
-      - "8000:8080"
+      - "8080:8080"
     depends_on:
       - postgres
     env_file:
@@ -24,6 +24,17 @@ services:
     ports:
       - "5432:5432"
     networks:
+      - supermock
+
+  client-react-app:
+    build:
+      context: ./client2/my-app # Use an image built from the specified dockerfile in the current directory.
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+#    depends_on:
+#      - postgres
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
       - supermock
 
 networks:
