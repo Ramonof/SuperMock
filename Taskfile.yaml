@@ -10,7 +10,7 @@ tasks:
       - go run main.go --config=./config/config_local.yaml
   run-compose:
     cmds:
-      - docker-compose up
+      - docker-compose up --build
   test:
     desc: "Launch all tests"
     cmds:

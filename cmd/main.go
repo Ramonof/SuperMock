@@ -205,7 +205,7 @@ func (s *MyServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 }
 
 func startRestServer(storage *postgresql.Storage, log *slog.Logger) *http.Server {
-	router := setupRouter(storage)
+	router := setupRouter(storage, log)
 
 	srv := &http.Server{
 		Handler: router,
@@ -225,13 +225,13 @@ func startRestServer(storage *postgresql.Storage, log *slog.Logger) *http.Server
 	return srv
 }
 
-func setupRouter(storage *postgresql.Storage) *mux.Router {
+func setupRouter(storage *postgresql.Storage, log *slog.Logger) *mux.Router {
 	projectService := project.New(nil, storage, storage, storage, storage)
 	restService := r.New(nil, storage, storage, storage, storage)
 	grpcService := g.New(nil, storage, storage, storage, storage, storage)
 
 	router := mux.NewRouter()
-	router.Use(CORSMiddleware())
+	//router.Use(CORSMiddleware(log))
 	router.Use(ContentTypeMiddleware())
 	router.HandleFunc("/api/v1/login", utils.Authenticate).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/v1/validate-token", utils.ValidateToken).Methods("GET", "OPTIONS")
@@ -268,7 +268,7 @@ func setupRouter(storage *postgresql.Storage) *mux.Router {
 	return router
 }
 
-func CORSMiddleware() func(next http.Handler) http.Handler {
+func CORSMiddleware(log *slog.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if origin := r.Header.Get("Origin"); origin != "" {
@@ -277,6 +277,7 @@ func CORSMiddleware() func(next http.Handler) http.Handler {
 				w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 				w.Header().Set("Access-Control-Allow-Headers",
 					"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+				log.Debug(origin)
 			}
 			if r.Method == "OPTIONS" {
 				return

@@ -6,8 +6,8 @@ import { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 
 const LoginForm = () => {
-    const [login, setLogin] = useState("");
-    const [password, setPassword] = useState("");
+    const [login, setLogin] = useState("neo");
+    const [password, setPassword] = useState("keanu");
 
     const navigate = useNavigate();
 
