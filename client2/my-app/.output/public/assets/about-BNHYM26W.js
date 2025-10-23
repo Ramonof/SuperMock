@@ -1,0 +1,1 @@
+import{a as s,j as o}from"./a-Dk_0r4vP.js";function r(){const{auth:t}=s.useRouteContext();return o.jsxs("div",{className:"p-2",children:["Hello from About! ",o.jsx("strong",{children:t.user?.user}),"!"]})}export{r as component};

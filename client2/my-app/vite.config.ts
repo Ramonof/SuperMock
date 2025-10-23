@@ -9,13 +9,20 @@ import tsConfigPaths from 'vite-tsconfig-paths'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // build: {
+  //   rollupOptions: {
+  //     input: {
+  //       a: 'src/entry-client.tsx',
+  //     }
+  //   },
+  // },
   // server: {
   //   port: 3000,
   // },
   plugins: [
     // tsConfigPaths(),
     // tanstackStart(),
-    nitroV2Plugin(),
+    // nitroV2Plugin(),
     TanStackRouterVite({ autoCodeSplitting: true }),
     viteReact(),
     // tailwindcss(),

@@ -20,6 +20,8 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
     /* Linting */
     "skipLibCheck": true,
     "strict": true,

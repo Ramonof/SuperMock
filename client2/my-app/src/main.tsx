@@ -1,9 +1,6 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
-import { RouterProvider, createRouter } from '@tanstack/react-router'
-
-// Import the generated route tree
-import { routeTree } from './routeTree.gen'
+import { RouterProvider } from '@tanstack/react-router'
 
 import './styles.css'
 import reportWebVitals from './reportWebVitals.ts'
@@ -11,7 +8,7 @@ import reportWebVitals from './reportWebVitals.ts'
 import { ChakraProvider } from '@chakra-ui/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuth, AuthProvider } from './context/auth.tsx'
-import { getRouter } from './router.tsx'
+import { createRouter } from './router.tsx'
 
 export const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:8080/api/v1" : "/api";
 
@@ -23,20 +20,20 @@ const queryClient = new QueryClient()
 //   context: {
 //     auth: undefined!,
 //   },
-//   defaultPreload: 'intent',
-//   scrollRestoration: true,
-//   defaultStructuralSharing: true,
-//   defaultPreloadStaleTime: 0,
+  // defaultPreload: 'intent',
+  // scrollRestoration: true,
+  // defaultStructuralSharing: true,
+  // defaultPreloadStaleTime: 0,
 // })
 
-const router = getRouter()
+const router = createRouter()
 
 function InnerApp() {
   const auth = useAuth()
   return <RouterProvider router={router} context={{ auth }} />
 }
 
-function App() {
+export function App() {
   return (
     <AuthProvider>
       <InnerApp />
@@ -44,32 +41,20 @@ function App() {
   )
 }
 
-// Register the router instance for type safety
-declare module '@tanstack/react-router' {
-  interface Register {
-    ssr: true,
-    router: typeof router
-  }
-}
-
 // Render the app
-const rootElement = document.getElementById('app')
-if (rootElement && !rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement)
-  root.render(
-    <StrictMode>
-      <AuthProvider>
-      <ChakraProvider>
-        <QueryClientProvider client={queryClient}>
-        {/* <RouterProvider router={router} /> */}
-        {/* <App /> */}
-        <InnerApp />
-        </QueryClientProvider>
-      </ChakraProvider>
-      </AuthProvider>
-    </StrictMode>,
-  )
-}
+// const rootElement = document.getElementById('app')
+// if (rootElement && !rootElement.innerHTML) {
+//   const root = ReactDOM.createRoot(rootElement)
+//   root.render(
+//     <StrictMode>
+//       <ChakraProvider>
+//         <QueryClientProvider client={queryClient}>
+//           <App />
+//         </QueryClientProvider>
+//       </ChakraProvider>
+//     </StrictMode>,
+//   )
+// }
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
