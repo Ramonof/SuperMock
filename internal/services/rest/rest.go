@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gorilla/mux"
 	"log/slog"
 	"net/http"
@@ -178,6 +179,12 @@ func (service *Rest) ServeStub(w http.ResponseWriter, r *http.Request) {
 	method := r.Method
 	projectId := pathVars[2]
 	path := "/" + pathVars[3]
+	query := ""
+	pathAndQuery := strings.SplitN(path, "?", 2)
+	if len(pathAndQuery) == 2 {
+		path, query = pathAndQuery[0], pathAndQuery[1]
+	}
+	fmt.Println(query)
 
 	stubs, err := service.stubProvider.Stubs(context.TODO(), projectId)
 	if err != nil {

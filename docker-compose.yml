@@ -38,6 +38,18 @@ services:
     networks:
       - supermock-net
 
+  api-supemock-migrate:
+    image: "migrate/migrate:v4.18.2"
+    depends_on:
+      - postgres
+    env_file:
+      - test.env
+    networks:
+      - supermock-net
+    volumes:
+      - "./migrations:/migrations"
+    command: ["-path", "/migrations/", "-database", "postgresql://postgres_user:postgres_password@postgres:5432/postgres_db?sslmode=disable", "up"]
+
   supermock:
     build:
       context: ./client2/my-app # Use an image built from the specified dockerfile in the current directory.

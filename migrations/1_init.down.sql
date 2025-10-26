@@ -1,4 +1,0 @@
-DROP TABLE IF EXISTS projects;
-DROP TABLE IF EXISTS reststubs;
-DROP TABLE IF EXISTS grpc_protos;
-DROP TABLE IF EXISTS grpc_stubs;

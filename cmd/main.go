@@ -231,7 +231,7 @@ func setupRouter(storage *postgresql.Storage, log *slog.Logger) *mux.Router {
 	grpcService := g.New(nil, storage, storage, storage, storage, storage)
 
 	router := mux.NewRouter()
-	//router.Use(CORSMiddleware(log))
+	router.Use(CORSMiddleware(log))
 	router.Use(ContentTypeMiddleware())
 	router.HandleFunc("/api/v1/login", utils.Authenticate).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/v1/validate-token", utils.ValidateToken).Methods("GET", "OPTIONS")

@@ -7,5 +7,6 @@ type RestStub struct {
 	CreatedAt    string `json:"created_at" db:"created_at"`
 	Path         string `json:"path" db:"path"`
 	Method       string `json:"method" db:"method"`
+	Type         string `json:"type" db:"type"`
 	ResponseBody string `json:"response_body" db:"response_body"`
 }

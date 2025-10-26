@@ -43,7 +43,7 @@ func (storage *Storage) SaveStub(ctx context.Context, stub models.RestStub) (int
 	const op = "storage.postgres.SaveStub"
 
 	_, err := storage.db.NamedExec(
-		"INSERT INTO reststubs (name, project_id, created_at, path, method, response_body) VALUES (:name, :project_id, :created_at, :path, :method, :response_body)",
+		"INSERT INTO reststubs (name, project_id, created_at, path, method, type, response_body) VALUES (:name, :project_id, :created_at, :path, :method, :type, :response_body)",
 		&stub,
 	)
 	if err != nil {
@@ -68,10 +68,6 @@ func (storage *Storage) Stub(ctx context.Context, projectId string, stubId strin
 	const op = "storage.postgres.Stub"
 
 	var newStub models.RestStub
-	//err := storage.db.QueryRow(
-	//	"SELECT id, name, created_at, path, response_body FROM reststubs WHERE id = $1 AND project_id = $2",
-	//	stubId, projectId,
-	//).Scan(&newStub.ID, &newStub.Name, &newStub.CreatedAt, &newStub.Path, &newStub.ResponseBody)
 	err := storage.db.Get(
 		&newStub,
 		"SELECT * FROM reststubs WHERE id = $1 AND project_id = $2",
@@ -99,7 +95,7 @@ func (storage *Storage) UpdateStub(ctx context.Context, stub models.RestStub) (i
 	const op = "storage.postgres.SaveStub"
 
 	_, err := storage.db.NamedExec(
-		"update reststubs set name=:name, project_id=:project_id, created_at=:created_at, path=:path, method=:method, response_body=:response_body where id=:id",
+		"update reststubs set name=:name, project_id=:project_id, created_at=:created_at, path=:path, method=:method, type=:type, response_body=:response_body where id=:id",
 		&stub,
 	)
 	if err != nil {

@@ -1,5 +1,5 @@
 import { BASE_URL } from "@/main";
-import { Flex, Input, Button, Spinner, Stack, Text, HStack, Select } from "@chakra-ui/react";
+import { Flex, Input, Button, Spinner, Stack, Text, HStack, Select, Radio, RadioGroup, useColorModeValue, createMultiStyleConfigHelpers, extendTheme, useColorMode } from "@chakra-ui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
@@ -8,24 +8,95 @@ import type { RestStub } from "./RestStubList";
 import apiClient from "@/utils/request";
 import {EditorView, basicSetup} from "codemirror"
 import {json, jsonParseLinter} from "@codemirror/lang-json"
+import {esLint, javascript} from "@codemirror/lang-javascript"
 import {oneDark} from "@codemirror/theme-one-dark"
-import CodeMirror from '@uiw/react-codemirror';
+import CodeMirror, { useCodeMirror } from '@uiw/react-codemirror';
 import React from "react";
 import { linter } from "@codemirror/lint";
+import { radioAnatomy } from '@chakra-ui/anatomy'
+import * as eslint from "eslint-linter-browserify";
+
+import {syntaxTree} from "@codemirror/language"
+import type {Diagnostic} from "@codemirror/lint"
+
+const bracketsLinter = linter(view => {
+  let diagnostics: Diagnostic[] = []
+  let a = 0
+  let b = 0
+  syntaxTree(view.state).cursor().iterate(node => {
+    b = node.to
+    if (node.name == "{") {
+        a = a + 1
+    }
+    if (node.name == "}") {
+        a = a - 1
+    }
+    if (a < 0) {
+        diagnostics.push({
+            from: node.from,
+            to: node.to,
+            severity: "warning",
+            message: "Unopened bracket",
+        })
+    }
+  })
+  if (a > 0) {
+            diagnostics.push({
+            from: b,
+            to: b,
+            severity: "warning",
+            message: "Unclosed bracket",
+        })
+  }
+  return diagnostics
+})
+
+// Define the extensions outside the component for the best performance.
+// If you need dynamic extensions, use React.useMemo to minimize reference changes
+// which cause costly re-renders.
+const extensionsJson = [json(), linter(jsonParseLinter()), javascript()];
+const extensionsJs = [javascript(), bracketsLinter];
 
 const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { ProjectId: string, StubId: string, restStubs: RestStub[], setRestStubs: React.Dispatch<React.SetStateAction<RestStub[]>> }) => {
-
-    const [value, setValue] = React.useState("console.log('hello world!');");
-    const onChange = React.useCallback((val: React.SetStateAction<string>, viewUpdate: any) => {
-        console.log('val:', val);
-        setValue(val);
-        setNewRestStubResponseBody(val)
-    }, []);
-
+    const color = useColorModeValue("gray.800", "yellow.100")
+    const { colorMode, toggleColorMode } = useColorMode();
+    
     const [newRestStubName, setNewRestStubName] = useState("");
     const [newRestStubPath, setNewRestStubPath] = useState("");
     const [newRestStubMethod, setNewRestStubMethod] = useState("");
+    const [newRestStubType, setNewRestStubType] = useState("json")
     const [newRestStubResponseBody, setNewRestStubResponseBody] = useState("");
+
+    const [extensions, setExtensions] = useState(extensionsJson)
+
+    const onTypeChange = React.useCallback((val: React.SetStateAction<string>) => {
+        setNewRestStubType(val)
+        if (val === "json") {
+            setExtensions(extensionsJson)
+        } else {
+            setExtensions(extensionsJs)
+        }
+    }, []);
+
+    const onChange = React.useCallback((val: React.SetStateAction<string>, viewUpdate: any) => {
+        setNewRestStubResponseBody(val)
+    }, []);
+
+    const editor = useRef(null);
+    const { setContainer } = useCodeMirror({
+        container: editor.current,
+        extensions,
+        value: newRestStubResponseBody,
+        onChange: onChange,
+        height: "200px",
+        theme: colorMode === "light" ? "light" : "dark"
+    });
+
+    useEffect(() => {
+        if (editor.current) {
+            setContainer(editor.current);
+        }
+    }, [editor.current]);
 
     const navigate = useNavigate();
 
@@ -39,16 +110,16 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
 					url: BASE_URL + "/projects/" + ProjectId + "/stub/" + StubId, 
 					method: 'get'
 				});
-				// const res = response.data
-				const data = response.data
-                setNewRestStubName(data.name);
-                setNewRestStubPath(data.path);
-                setNewRestStubMethod(data.method);
-                setNewRestStubResponseBody(data.response_body)
 
-				// if (!res.ok) {
-				// 	throw new Error(data.error || "Something went wrong");
-				// }
+				const data = response.data
+                if (newRestStubName == "") {
+                    setNewRestStubName(data.name);
+                    setNewRestStubPath(data.path);
+                    setNewRestStubMethod(data.method);
+                    setNewRestStubResponseBody(data.response_body)
+                    setNewRestStubType(data.type)
+                }
+
 				return data || null;
 			} catch (error) {
 				console.log(error);
@@ -67,7 +138,7 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    data: JSON.stringify({ name: newRestStubName, path: newRestStubPath, method: newRestStubMethod, response_body: newRestStubResponseBody }),
+                    data: JSON.stringify({ name: newRestStubName, path: newRestStubPath, method: newRestStubMethod, type: newRestStubType, response_body: newRestStubResponseBody }),
 				});
 
                 setRestStubs(restStubs.map(item => (item.id == res.data.id ? res.data : item)));
@@ -134,7 +205,21 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
                 <Text color={"yellow.100"}  fontSize='xl'>
                     Response
                 </Text>
-                <CodeMirror value={newRestStubResponseBody} height="200px" extensions={[json(), linter(jsonParseLinter())]} onChange={onChange} />
+                <RadioGroup onChange={onTypeChange} value={newRestStubType}>
+                    <Stack direction='row'>
+                        <Radio value='json' textColor={"yellow.100"} colorScheme='green'>
+                            <Text color={color}>json</Text>
+                        </Radio>
+                        <Radio textColor={color} value='javascript' colorScheme='red'>
+                            <Text color={color}>javascript(WIP)</Text>
+                        </Radio>
+                        <Radio textColor={color} value='goroovy' colorScheme='green'>
+                            <Text color={color}>goroovy</Text>
+                        </Radio>
+                    </Stack>
+                </RadioGroup>
+                {/* <CodeMirror value={newRestStubResponseBody} height="200px" extensions={[json(), linter(jsonParseLinter()), javascript()]} onChange={onChange} /> */}
+                <div ref={editor} />
                 <Button
                     mx={2}
                     type='submit'

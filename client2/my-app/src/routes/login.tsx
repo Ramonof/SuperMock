@@ -18,8 +18,8 @@ function LoginComponent() {
   const { auth } = Route.useRouteContext()
   const { redirect } = Route.useSearch()
   const navigate = Route.useNavigate()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [username, setUsername] = useState('neo')
+  const [password, setPassword] = useState('keanu')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 

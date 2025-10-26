@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node server",
+    "help": "vite dev",
+    "dev": "node server --mode development",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build --outDir dist/client",
     "build:server": "vite build --ssr src/entry-server.jsx --outDir dist/server",
@@ -11,6 +12,7 @@
   },
   "dependencies": {
     "@chakra-ui/react": "^2.10.9",
+    "@codemirror/lang-javascript": "^6.2.4",
     "@codemirror/lang-json": "^6.0.2",
     "@codemirror/theme-one-dark": "^6.1.3",
     "@emotion/react": "^11.14.0",
@@ -28,6 +30,7 @@
     "codemirror": "^6.0.2",
     "compression": "^1.8.1",
     "cross-env": "^10.1.0",
+    "eslint-linter-browserify": "^9.38.0",
     "express": "^5.1.0",
     "framer-motion": "^12.23.22",
     "lucide-react": "^0.545.0",

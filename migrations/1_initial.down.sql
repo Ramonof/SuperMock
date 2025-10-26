@@ -1,0 +1,10 @@
+
+DROP TABLE IF EXISTS reststubs;
+
+DROP TABLE IF EXISTS grpc_stubs;
+DROP TABLE IF EXISTS grpc_protos;
+
+DROP TABLE IF EXISTS role_models;
+DROP TABLE IF EXISTS users;
+
+DROP TABLE IF EXISTS projects;
