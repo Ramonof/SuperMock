@@ -18,6 +18,7 @@ import * as eslint from "eslint-linter-browserify";
 
 import {syntaxTree} from "@codemirror/language"
 import type {Diagnostic} from "@codemirror/lint"
+import getColor from "@/utils/color";
 
 const bracketsLinter = linter(view => {
   let diagnostics: Diagnostic[] = []
@@ -167,10 +168,10 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
     return (
         <form onSubmit={updateRestStub}>
             <Stack gap={2}>
-                <Text color={"yellow.100"}  fontSize='xl'>
+                <Text color={getColor()}  fontSize='xl'>
                     Request
                 </Text>
-                <Text color={"yellow.100"}>
+                <Text color={getColor()}>
                     Name
                 </Text>
                 <Input
@@ -178,13 +179,13 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
                     value={newRestStubName}
                     onChange={(e) => setNewRestStubName(e.target.value)}
                     // ref={(input) => input && input.focus()}
-                    textFillColor={"yellow.100"}
+                    textFillColor={getColor()}
                 />
-                <Text color={"yellow.100"}>
+                <Text color={getColor()}>
                     Path
                 </Text>
                 <HStack>
-                    <Select value={newRestStubMethod} onChange={(e) => setNewRestStubMethod(e.target.value)} color={"yellow.100"} width={'fit-content'}>
+                    <Select value={newRestStubMethod} onChange={(e) => setNewRestStubMethod(e.target.value)} color={getColor()} width={'fit-content'}>
                         <option value='ANY'>ANY</option>
                         <option value='GET'>GET</option>
                         <option value='POST'>POST</option>
@@ -199,15 +200,15 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
                         value={newRestStubPath}
                         onChange={(e) => setNewRestStubPath(e.target.value)}
                         // ref={(input) => input && input.focus()}
-                        textFillColor={"yellow.100"}
+                        textFillColor={getColor()}
                     />
                 </HStack>
-                <Text color={"yellow.100"}  fontSize='xl'>
+                <Text color={getColor()}  fontSize='xl'>
                     Response
                 </Text>
                 <RadioGroup onChange={onTypeChange} value={newRestStubType}>
                     <Stack direction='row'>
-                        <Radio value='json' textColor={"yellow.100"} colorScheme='green'>
+                        <Radio value='json' textColor={getColor()} colorScheme='green'>
                             <Text color={color}>json</Text>
                         </Radio>
                         <Radio textColor={color} value='javascript' colorScheme='red'>

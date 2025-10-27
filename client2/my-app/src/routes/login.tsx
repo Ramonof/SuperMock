@@ -55,7 +55,7 @@ function LoginComponent() {
 
         <div>
           <label htmlFor="username" className="block text-sm font-medium mb-1">
-            Username
+            Username:
           </label>
           <input
             id="username"
@@ -69,7 +69,7 @@ function LoginComponent() {
 
         <div>
           <label htmlFor="password" className="block text-sm font-medium mb-1">
-            Password
+            Password:
           </label>
           <input
             id="password"

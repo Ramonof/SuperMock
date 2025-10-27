@@ -5,6 +5,7 @@ import type { Project } from "./ProjectList";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { Link as TanstackLink } from "@tanstack/react-router";
+import getColor from "@/utils/color";
 
 const ProjectItem = ({ Project }: { Project: Project }) => {
 	const queryClient = useQueryClient();
@@ -72,7 +73,7 @@ const ProjectItem = ({ Project }: { Project: Project }) => {
 				<Link as={TanstackLink}
 					to={`/project/${Project.id}`}
 				 	// to={"/project/$projectId"} params={{ projectId : "123" }}
-					color={Project.completed ? "green.200" : "yellow.100"}
+					color={Project.completed ? "green.200" : getColor}
 					textDecoration={Project.completed ? "line-through" : "none"}
 					variant="underline"
 					// href={`/project/${Project.id}`}

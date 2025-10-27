@@ -4,6 +4,7 @@ import { MdDelete } from "react-icons/md";
 import { Link as TanstackLink } from "@tanstack/react-router";
 import { IoAdd, IoAddCircleOutline, IoMoon } from "react-icons/io5";
 import { ExternalLinkIcon } from "lucide-react";
+import getColor from "@/utils/color";
 
 const StubsInfo = ({ ProjectId }: { ProjectId: string }) => {
 
@@ -30,7 +31,7 @@ const StubsInfo = ({ ProjectId }: { ProjectId: string }) => {
             >
                 <Link as={TanstackLink}
                     to={`/project/${ProjectId}/rest/stubs/create`}
-                    color={"yellow.100"}
+                    color={getColor()}
                     variant="underline"
                     colorPalette="teal"
                 >

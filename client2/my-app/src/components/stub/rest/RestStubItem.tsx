@@ -5,6 +5,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { Link as TanstackLink } from "@tanstack/react-router";
 import type { RestStub } from "./RestStubList";
+import getColor from "@/utils/color";
 
 const RestStubItem = ({ Project }: { Project: RestStub }) => {
     const queryClient = useQueryClient();
@@ -65,7 +66,7 @@ const RestStubItem = ({ Project }: { Project: RestStub }) => {
             >
                 <Link as={TanstackLink}
                     to={`/project/${Project.project_id}/rest/stubs/${Project.id}`}
-                    color={Project.completed ? "green.200" : "yellow.100"}
+                    color={Project.completed ? "green.200" : getColor}
                     textDecoration={Project.completed ? "line-through" : "none"}
                     variant="underline"
                     // href={`/project/${Project.id}`}

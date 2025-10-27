@@ -2,6 +2,7 @@ import { Badge, Box, Flex, Link, Spinner, Stack, Text } from "@chakra-ui/react";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { Link as TanstackLink } from "@tanstack/react-router";
+import getColor from "@/utils/color";
 
 const ProjectInfo = ({ ProjectId }: { ProjectId: string }) => {
 
@@ -31,7 +32,7 @@ const ProjectInfo = ({ ProjectId }: { ProjectId: string }) => {
                     >
                         <Link as={TanstackLink}
                             to={`/project/${ProjectId}/rest/stubs/refactorme`}
-                            color={"yellow.100"}
+                            color={getColor()}
                             variant="underline"
                             colorPalette="teal"
                         >
