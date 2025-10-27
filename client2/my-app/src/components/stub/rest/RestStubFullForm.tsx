@@ -165,6 +165,41 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
         },
     });
 
+    const [arrId, setArrId] = useState(1)
+    const inputArr = [
+        {
+            type: "text",
+            id: arrId,
+            value: ""
+        }
+    ];
+    const [arr, setArr] = useState(inputArr);
+    const addInput = () => {
+        setArrId(arrId+1)
+        setArr(s => {
+        return [
+            ...s,
+            {
+            type: "text",
+            id: arrId,
+            value: ""
+            }
+        ];
+        });
+    };
+
+    const handleChange = (e: { preventDefault: () => void; target: { id: any; value: string; }; }) => {
+        e.preventDefault();
+
+        const index = e.target.id;
+        setArr(s => {
+        const newArr = s.slice();
+        newArr[index].value = e.target.value;
+
+        return newArr;
+        });
+    };
+
     return (
         <form onSubmit={updateRestStub}>
             <Stack gap={2}>
@@ -206,6 +241,30 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
                 <Text color={getColor()}  fontSize='xl'>
                     Response
                 </Text>
+                <button onClick={addInput}><Text color={getColor()}>+ Header</Text></button>
+                {arr.map((item, i) => {
+                    return (
+                    <HStack>
+                    <Input
+                        onChange={handleChange}
+                        value={item.value}
+                        id={i}
+                        type={item.type}
+                        size="40"
+                        textFillColor={getColor()}
+                    />
+                    <Input
+                        onChange={handleChange}
+                        value={item.value}
+                        id={i}
+                        type={item.type}
+                        size="40"
+                        textFillColor={getColor()}
+                    />
+                    </HStack>
+                    );
+                })}
+                <Text color={getColor()} >Body</Text>
                 <RadioGroup onChange={onTypeChange} value={newRestStubType}>
                     <Stack direction='row'>
                         <Radio value='json' textColor={getColor()} colorScheme='green'>
