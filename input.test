@@ -1,4 +1,2 @@
-a = 5;
-b = a + 6;
-c + 123;
-5+12;
+if (request.id == "1")
+    return res1
