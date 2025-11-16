@@ -1,2 +1,3 @@
-if (request.id == "1")
+
+if (request.body.id == "1")
     return res1
