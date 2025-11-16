@@ -1,21 +1,20 @@
-package parser
+package goroovy
 
 import (
-	lex "SuperStub/cmd/goroovy/lexer"
 	"errors"
 )
 
 var noRightCond = errors.New("no right cond")
 
-type Token struct {
+type Tokenized struct {
 	Line  int
 	Col   int
-	Token lex.Token
+	Token Token
 	Lit   string
 }
 
 type Parser struct {
-	tokens     []*Token
+	tokens     []*Tokenized
 	pos        int
 	lastReturn string
 	variables  map[string]*Variable
@@ -26,7 +25,7 @@ type Variable struct {
 	t string
 }
 
-func NewParser(tokens []*Token) *Parser {
+func NewParser(tokens []*Tokenized) *Parser {
 	return &Parser{tokens: tokens, pos: -1, lastReturn: "", variables: make(map[string]*Variable)}
 }
 
@@ -34,7 +33,7 @@ func (p *Parser) AddVariable(name string, v string) {
 	p.variables[name] = &Variable{v, "string"}
 }
 
-func (p *Parser) nextToken() *Token {
+func (p *Parser) nextToken() *Tokenized {
 	p.pos++
 	if p.pos >= len(p.tokens) {
 		return nil
@@ -57,8 +56,8 @@ func (p *Parser) ParseTokens() (string, error) {
 			return "", nil
 		}
 		switch token.Token {
-		case lex.NEWLINE:
-		case lex.IF:
+		case NEWLINE:
+		case IF:
 			ok, err := p.handleIf()
 			if err != nil {
 				return "", err
@@ -66,9 +65,9 @@ func (p *Parser) ParseTokens() (string, error) {
 			if !ok {
 				p.skipIf()
 			}
-		case lex.IDENT:
+		case IDENT:
 			//TODO
-		case lex.RETURN:
+		case RETURN:
 			r, err := p.handleReturn()
 			if err != nil {
 				return "", err
@@ -86,7 +85,7 @@ func (p *Parser) handleReturn() (string, error) {
 		return "", errors.New("empty return token")
 	}
 	switch token.Token {
-	case lex.IDENT:
+	case IDENT:
 		v, _ := p.variables[token.Lit]
 		return v.v.(string), nil
 	}
@@ -125,16 +124,16 @@ func (p *Parser) handleIf() (bool, error) {
 
 type ConditionVariable struct {
 	variable any
-	varType  lex.Token
+	varType  Token
 }
 
 type Condition struct {
 	left     *ConditionVariable
 	right    *ConditionVariable
-	operator lex.Token
+	operator Token
 }
 
-func (c *Condition) addVar(v any, t lex.Token) error {
+func (c *Condition) addVar(v any, t Token) error {
 	if c.left == nil {
 		c.left = &ConditionVariable{variable: v, varType: t}
 		return nil
@@ -145,7 +144,7 @@ func (c *Condition) addVar(v any, t lex.Token) error {
 	return errors.New("bad if")
 }
 
-func (c *Condition) addOperator(i lex.Token) error {
+func (c *Condition) addOperator(i Token) error {
 	if c.operator == 0 {
 		c.operator = i
 		return nil
@@ -161,7 +160,7 @@ func (p *Parser) fillConditional() (*Conditional, error) {
 	if token == nil {
 		return nil, errors.New("bad if")
 	}
-	if token.Token != lex.BRACKETOPEN {
+	if token.Token != BRACKETOPEN {
 		return nil, errors.New("bad if")
 	}
 
@@ -171,15 +170,15 @@ func (p *Parser) fillConditional() (*Conditional, error) {
 			return nil, errors.New("conditional must end with )")
 		}
 		switch token.Token {
-		case lex.NEWLINE:
-		case lex.BRACKETOPEN:
+		case NEWLINE:
+		case BRACKETOPEN:
 			p.moveBack()
 			conditional, err := p.fillConditional()
 			if err != nil {
 				return nil, err
 			}
 			res.isTrue = conditional.isTrue
-		case lex.BRACKETCLOSE:
+		case BRACKETCLOSE:
 			return res, nil
 		default:
 			p.moveBack()
@@ -198,9 +197,9 @@ func (p *Parser) fillConditional() (*Conditional, error) {
 						return nil, errors.New("conditional must end with )")
 					}
 					switch token.Token {
-					case lex.BRACKETCLOSE:
+					case BRACKETCLOSE:
 						return res, nil
-					case lex.OR:
+					case OR:
 						p.moveBack()
 						break loop1
 					}
@@ -213,9 +212,9 @@ func (p *Parser) fillConditional() (*Conditional, error) {
 						return nil, errors.New("conditional must end with )")
 					}
 					switch token.Token {
-					case lex.BRACKETCLOSE:
+					case BRACKETCLOSE:
 						return res, nil
-					case lex.AND:
+					case AND:
 						p.moveBack()
 						break loop2
 					}
@@ -234,7 +233,7 @@ func (c *Condition) checkCondition(p *Parser) bool {
 	}
 	l, r := fillVars(p, c)
 	switch c.operator {
-	case lex.EQUALS:
+	case EQUALS:
 		return l.v == r.v
 	}
 	return false
@@ -242,13 +241,13 @@ func (c *Condition) checkCondition(p *Parser) bool {
 
 func fillVars(p *Parser, c *Condition) (*Variable, *Variable) {
 	var l, r *Variable
-	if c.left.varType == lex.IDENT {
+	if c.left.varType == IDENT {
 		l = p.variables[c.left.variable.(string)]
 	}
-	if c.right.varType == lex.IDENT {
+	if c.right.varType == IDENT {
 		r = p.variables[c.right.variable.(string)]
 	}
-	if c.right.varType == lex.QUOTE {
+	if c.right.varType == QUOTE {
 		r = &Variable{
 			v: c.right.variable,
 			t: "string",
@@ -287,17 +286,17 @@ func (p *Parser) condRightVar(condition *Condition) (*Condition, error) {
 	}
 
 	switch token.Token {
-	case lex.QUOTE:
+	case QUOTE:
 		err := condition.addVar(token.Lit, token.Token)
 		if err != nil {
 			return nil, err
 		}
-	case lex.IDENT:
+	case IDENT:
 		err := condition.addVar(token.Lit, token.Token)
 		if err != nil {
 			return nil, err
 		}
-	case lex.INT:
+	case INT:
 		err := condition.addVar(token.Lit, token.Token)
 		if err != nil {
 			return nil, err
@@ -315,7 +314,7 @@ func (p *Parser) condOp(condition *Condition) (*Condition, error) {
 	}
 
 	switch token.Token {
-	case lex.EQUALS, lex.MORE, lex.LESS, lex.MOREOREQUAL, lex.LESSOREQUAL:
+	case EQUALS, MORE, LESS, MOREOREQUAL, LESSOREQUAL:
 		err := condition.addOperator(token.Token)
 		if err != nil {
 			return nil, err
@@ -334,18 +333,18 @@ func (p *Parser) condLeftVar(condition *Condition) (*Condition, error) {
 	}
 
 	switch token.Token {
-	case lex.QUOTE:
+	case QUOTE:
 		err := condition.addVar(token.Lit, token.Token)
 		if err != nil {
 			return nil, err
 		}
-	case lex.IDENT:
+	case IDENT:
 		lit, _ := p.parseIdent()
 		err := condition.addVar(lit, token.Token)
 		if err != nil {
 			return nil, err
 		}
-	case lex.INT:
+	case INT:
 		err := condition.addVar(token.Lit, token.Token)
 		if err != nil {
 			return nil, err
@@ -367,9 +366,9 @@ func (p *Parser) parseIdent() (string, error) {
 		}
 
 		switch token.Token {
-		case lex.IDENT:
+		case IDENT:
 			res += token.Lit
-		case lex.DOT:
+		case DOT:
 			res += token.Lit
 		default:
 			p.moveBack()
