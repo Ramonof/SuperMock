@@ -64,6 +64,8 @@ func (p *Parser) ParseTokens() (string, error) {
 			}
 			if !ok {
 				p.skipIf()
+				//first newline on if line
+				p.skipIf()
 			}
 		case IDENT:
 			//TODO
@@ -94,9 +96,11 @@ func (p *Parser) handleReturn() (string, error) {
 
 func (p *Parser) skipIf() {
 	//TODO refactor for curly brackets {}
-	token := p.nextToken()
-	if token == nil {
-		return
+	for {
+		token := p.nextToken()
+		if token == nil || token.Token == NEWLINE {
+			return
+		}
 	}
 }
 

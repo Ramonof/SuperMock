@@ -79,7 +79,7 @@ func (storage *Storage) Stub(ctx context.Context, projectId string, stubId strin
 }
 
 func (storage *Storage) Stubs(ctx context.Context, projectId string) ([]models.RestStub, error) {
-	const op = "storage.postgres.createUser"
+	const op = "storage.postgres.Stubs"
 	var stubs []models.RestStub
 
 	err := storage.db.Select(&stubs, "SELECT * FROM reststubs WHERE project_id = $1", projectId)

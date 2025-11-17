@@ -2,6 +2,7 @@ package rest
 
 import (
 	"SuperStub/internal/domain/models"
+	"SuperStub/internal/goroovy"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -194,12 +195,44 @@ func (service *Rest) ServeStub(w http.ResponseWriter, r *http.Request) {
 
 	for _, stub := range stubs {
 		if stub.Path == path && (stub.Method == "ANY" || stub.Method == method) {
-			var jsonMap map[string]interface{}
-			json.Unmarshal([]byte(stub.ResponseBody), &jsonMap)
-			json.NewEncoder(w).Encode(jsonMap)
+			if stub.Type == "json" {
+				service.handleJsonResponse(w, stub)
+			} else {
+				service.handleGoroovyResponse(w, stub)
+			}
 			return
 		}
 	}
 
 	http.Error(w, "No such stub", http.StatusBadRequest)
+}
+
+func (service *Rest) handleJsonResponse(w http.ResponseWriter, stub models.RestStub) {
+	var jsonMap map[string]interface{}
+	json.Unmarshal([]byte(stub.ResponseBody), &jsonMap)
+	json.NewEncoder(w).Encode(jsonMap)
+}
+
+func (service *Rest) handleGoroovyResponse(w http.ResponseWriter, stub models.RestStub) {
+	tokens := make([]*goroovy.Tokenized, 0)
+	newLexer := goroovy.NewLexer(strings.NewReader(stub.ResponseBody))
+	for {
+		pos, tok, lit := newLexer.Lex()
+		if tok == goroovy.EOF {
+			break
+		}
+
+		tokens = append(tokens, &goroovy.Tokenized{Line: pos.Line, Col: pos.Column, Token: tok, Lit: lit})
+	}
+
+	newParser := goroovy.NewParser(tokens)
+	newParser.AddVariable("res1", "{\"test\":\"body\"}")
+	newParser.AddVariable("request.body.id", "1")
+	res, err := newParser.ParseTokens()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	var jsonMap map[string]interface{}
+	json.Unmarshal([]byte(res), &jsonMap)
+	json.NewEncoder(w).Encode(jsonMap)
 }
