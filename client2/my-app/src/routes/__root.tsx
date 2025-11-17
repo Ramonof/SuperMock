@@ -43,7 +43,7 @@ function RootLayout() {
 						display={{ base: "none", sm: "flex" }}
 					>
         <Link to="/" className="[&.active]:font-bold">
-          SuperMock
+          LaMock
         </Link>{' '}
         <Link to="/about" className="[&.active]:font-bold">
           About
