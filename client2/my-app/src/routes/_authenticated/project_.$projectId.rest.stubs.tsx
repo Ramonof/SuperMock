@@ -12,11 +12,11 @@ function RestStubs() {
   const { projectId } = Route.useParams()
   return (
     // <Stack h="100vh">
-      <Container>
-        <ProjectName ProjectId={projectId}/>
-        <StubsInfo ProjectId={projectId}/>
-        <RestStubList ProjectId={projectId}/>
-      </Container>
     // </Stack>
+    <Container>
+      <ProjectName ProjectId={projectId}/>
+      <StubsInfo ProjectId={projectId}/>
+      <RestStubList ProjectId={projectId}/>
+    </Container>
   )
 }

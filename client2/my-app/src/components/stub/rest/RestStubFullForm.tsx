@@ -113,12 +113,17 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
 				});
 
 				const data = response.data
-                if (newRestStubName == "") {
+                if (newRestStubName == "" || newRestStubName != data.name) {
                     setNewRestStubName(data.name);
                     setNewRestStubPath(data.path);
                     setNewRestStubMethod(data.method);
                     setNewRestStubResponseBody(data.response_body)
                     setNewRestStubType(data.type)
+                    if (data.type === "json") {
+                        setExtensions(extensionsJson)
+                    } else {
+                        setExtensions(extensionsJs)
+                    }
                 }
 
 				return data || null;
@@ -170,6 +175,7 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
         {
             type: "text",
             id: arrId,
+            key: "",
             value: ""
         }
     ];
@@ -182,13 +188,25 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
             {
             type: "text",
             id: arrId,
+            key: "",
             value: ""
             }
         ];
         });
     };
 
-    const handleChange = (e: { preventDefault: () => void; target: { id: any; value: string; }; }) => {
+    const handleChange = (e: { preventDefault: () => void; target: { id: any; key: string; value: string; }; }) => {
+        e.preventDefault();
+
+        const index = e.target.id;
+        setArr(s => {
+        const newArr = s.slice();
+        newArr[index].key = e.target.key;
+
+        return newArr;
+        });
+    };
+    const handleChange2 = (e: { preventDefault: () => void; target: { id: any; key: string; value: string; }; }) => {
         e.preventDefault();
 
         const index = e.target.id;
@@ -201,7 +219,7 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
     };
 
     return (
-        <form onSubmit={updateRestStub}>
+        <form onSubmit={updateRestStub} style={{ height: 'auto', overflowY: 'scroll' }}>
             <Stack gap={2}>
                 <Text color={getColor()}  fontSize='xl'>
                     Request
@@ -241,20 +259,21 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
                 <Text color={getColor()}  fontSize='xl'>
                     Response
                 </Text>
+                <Text color={color}>Scenario State Proxy</Text>
                 <button onClick={addInput}><Text color={getColor()}>+ Header</Text></button>
                 {arr.map((item, i) => {
                     return (
                     <HStack>
                     <Input
                         onChange={handleChange}
-                        value={item.value}
+                        value={item.key}
                         id={i}
                         type={item.type}
                         size="40"
                         textFillColor={getColor()}
                     />
                     <Input
-                        onChange={handleChange}
+                        onChange={handleChange2}
                         value={item.value}
                         id={i}
                         type={item.type}
@@ -271,7 +290,7 @@ const RestStubFullForm = ({ ProjectId, StubId, restStubs, setRestStubs }: { Proj
                             <Text color={color}>json</Text>
                         </Radio>
                         <Radio textColor={color} value='javascript' colorScheme='red'>
-                            <Text color={color}>javascript(WIP)</Text>
+                            <Text color={color}>javascript</Text>
                         </Radio>
                         <Radio textColor={color} value='goroovy' colorScheme='green'>
                             <Text color={color}>goroovy</Text>

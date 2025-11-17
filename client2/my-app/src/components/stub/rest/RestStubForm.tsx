@@ -30,8 +30,8 @@ const RestStubForm = ({ ProjectId }: { ProjectId: string }) => {
 				setNewRestStubPath("");
 				setNewRestStubResponseBody("");
 				navigate({
-					to: '/project/$projectId/rest/stubs',
-					params: { projectId: ProjectId },
+					to: '/project/$projectId/rest/stubs/$stubId',
+					params: { projectId: ProjectId, stubId: res.id },
 				})
 				return res;
 			} catch (error: any) {

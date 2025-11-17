@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"io"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -198,7 +199,7 @@ func (service *Rest) ServeStub(w http.ResponseWriter, r *http.Request) {
 			if stub.Type == "json" {
 				service.handleJsonResponse(w, stub)
 			} else {
-				service.handleGoroovyResponse(w, stub)
+				service.handleGoroovyResponse(w, r, stub)
 			}
 			return
 		}
@@ -213,7 +214,7 @@ func (service *Rest) handleJsonResponse(w http.ResponseWriter, stub models.RestS
 	json.NewEncoder(w).Encode(jsonMap)
 }
 
-func (service *Rest) handleGoroovyResponse(w http.ResponseWriter, stub models.RestStub) {
+func (service *Rest) handleGoroovyResponse(w http.ResponseWriter, r *http.Request, stub models.RestStub) {
 	tokens := make([]*goroovy.Tokenized, 0)
 	newLexer := goroovy.NewLexer(strings.NewReader(stub.ResponseBody))
 	for {
@@ -227,7 +228,17 @@ func (service *Rest) handleGoroovyResponse(w http.ResponseWriter, stub models.Re
 
 	newParser := goroovy.NewParser(tokens)
 	newParser.AddVariable("res1", "{\"test\":\"body\"}")
-	newParser.AddVariable("request.body.id", "1")
+	data, err := io.ReadAll(r.Body)
+	if err == nil {
+		var jsonMap map[string]interface{}
+		json.Unmarshal(data, &jsonMap)
+		id, ok := jsonMap["id"]
+		if ok {
+			newParser.AddVariable("request.body.id", id.(string))
+		} else {
+			newParser.AddVariable("request.body.id", "a")
+		}
+	}
 	res, err := newParser.ParseTokens()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

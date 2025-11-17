@@ -13,9 +13,13 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutStubsRouteImport } from './routes/about.stubs'
+import { Route as AboutOverviewRouteImport } from './routes/about.overview'
+import { Route as AboutComparisonRouteImport } from './routes/about.comparison'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedProjectProjectIdRouteImport } from './routes/_authenticated/project.$projectId'
+import { Route as AuthenticatedProjectProjectIdVariablesRouteImport } from './routes/_authenticated/project_.$projectId.variables'
 import { Route as AuthenticatedProjectProjectIdRestStubsRouteImport } from './routes/_authenticated/project_.$projectId.rest.stubs'
 import { Route as AuthenticatedProjectProjectIdRestStubsCreateRouteImport } from './routes/_authenticated/project_.$projectId.rest.stubs_.create'
 import { Route as AuthenticatedProjectProjectIdRestStubsStubIdRouteImport } from './routes/_authenticated/project_.$projectId.rest.stubs_.$stubId'
@@ -39,6 +43,21 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutStubsRoute = AboutStubsRouteImport.update({
+  id: '/stubs',
+  path: '/stubs',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutOverviewRoute = AboutOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutComparisonRoute = AboutComparisonRouteImport.update({
+  id: '/comparison',
+  path: '/comparison',
+  getParentRoute: () => AboutRoute,
+} as any)
 const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
@@ -53,6 +72,12 @@ const AuthenticatedProjectProjectIdRoute =
   AuthenticatedProjectProjectIdRouteImport.update({
     id: '/project/$projectId',
     path: '/project/$projectId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedProjectProjectIdVariablesRoute =
+  AuthenticatedProjectProjectIdVariablesRouteImport.update({
+    id: '/project_/$projectId/variables',
+    path: '/project/$projectId/variables',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedProjectProjectIdRestStubsRoute =
@@ -76,22 +101,30 @@ const AuthenticatedProjectProjectIdRestStubsStubIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/about': typeof AboutRouteWithChildren
   '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/projects': typeof AuthenticatedProjectsRoute
+  '/about/comparison': typeof AboutComparisonRoute
+  '/about/overview': typeof AboutOverviewRoute
+  '/about/stubs': typeof AboutStubsRoute
   '/project/$projectId': typeof AuthenticatedProjectProjectIdRoute
+  '/project/$projectId/variables': typeof AuthenticatedProjectProjectIdVariablesRoute
   '/project/$projectId/rest/stubs': typeof AuthenticatedProjectProjectIdRestStubsRoute
   '/project/$projectId/rest/stubs/$stubId': typeof AuthenticatedProjectProjectIdRestStubsStubIdRoute
   '/project/$projectId/rest/stubs/create': typeof AuthenticatedProjectProjectIdRestStubsCreateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/about': typeof AboutRouteWithChildren
   '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/projects': typeof AuthenticatedProjectsRoute
+  '/about/comparison': typeof AboutComparisonRoute
+  '/about/overview': typeof AboutOverviewRoute
+  '/about/stubs': typeof AboutStubsRoute
   '/project/$projectId': typeof AuthenticatedProjectProjectIdRoute
+  '/project/$projectId/variables': typeof AuthenticatedProjectProjectIdVariablesRoute
   '/project/$projectId/rest/stubs': typeof AuthenticatedProjectProjectIdRestStubsRoute
   '/project/$projectId/rest/stubs/$stubId': typeof AuthenticatedProjectProjectIdRestStubsStubIdRoute
   '/project/$projectId/rest/stubs/create': typeof AuthenticatedProjectProjectIdRestStubsCreateRoute
@@ -100,11 +133,15 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/about': typeof AboutRoute
+  '/about': typeof AboutRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
+  '/about/comparison': typeof AboutComparisonRoute
+  '/about/overview': typeof AboutOverviewRoute
+  '/about/stubs': typeof AboutStubsRoute
   '/_authenticated/project/$projectId': typeof AuthenticatedProjectProjectIdRoute
+  '/_authenticated/project_/$projectId/variables': typeof AuthenticatedProjectProjectIdVariablesRoute
   '/_authenticated/project_/$projectId/rest/stubs': typeof AuthenticatedProjectProjectIdRestStubsRoute
   '/_authenticated/project_/$projectId/rest/stubs_/$stubId': typeof AuthenticatedProjectProjectIdRestStubsStubIdRoute
   '/_authenticated/project_/$projectId/rest/stubs_/create': typeof AuthenticatedProjectProjectIdRestStubsCreateRoute
@@ -117,7 +154,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard'
     | '/projects'
+    | '/about/comparison'
+    | '/about/overview'
+    | '/about/stubs'
     | '/project/$projectId'
+    | '/project/$projectId/variables'
     | '/project/$projectId/rest/stubs'
     | '/project/$projectId/rest/stubs/$stubId'
     | '/project/$projectId/rest/stubs/create'
@@ -128,7 +169,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard'
     | '/projects'
+    | '/about/comparison'
+    | '/about/overview'
+    | '/about/stubs'
     | '/project/$projectId'
+    | '/project/$projectId/variables'
     | '/project/$projectId/rest/stubs'
     | '/project/$projectId/rest/stubs/$stubId'
     | '/project/$projectId/rest/stubs/create'
@@ -140,7 +185,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/_authenticated/dashboard'
     | '/_authenticated/projects'
+    | '/about/comparison'
+    | '/about/overview'
+    | '/about/stubs'
     | '/_authenticated/project/$projectId'
+    | '/_authenticated/project_/$projectId/variables'
     | '/_authenticated/project_/$projectId/rest/stubs'
     | '/_authenticated/project_/$projectId/rest/stubs_/$stubId'
     | '/_authenticated/project_/$projectId/rest/stubs_/create'
@@ -149,7 +198,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  AboutRoute: typeof AboutRoute
+  AboutRoute: typeof AboutRouteWithChildren
   LoginRoute: typeof LoginRoute
 }
 
@@ -183,6 +232,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about/stubs': {
+      id: '/about/stubs'
+      path: '/stubs'
+      fullPath: '/about/stubs'
+      preLoaderRoute: typeof AboutStubsRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/overview': {
+      id: '/about/overview'
+      path: '/overview'
+      fullPath: '/about/overview'
+      preLoaderRoute: typeof AboutOverviewRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/comparison': {
+      id: '/about/comparison'
+      path: '/comparison'
+      fullPath: '/about/comparison'
+      preLoaderRoute: typeof AboutComparisonRouteImport
+      parentRoute: typeof AboutRoute
+    }
     '/_authenticated/projects': {
       id: '/_authenticated/projects'
       path: '/projects'
@@ -202,6 +272,13 @@ declare module '@tanstack/react-router' {
       path: '/project/$projectId'
       fullPath: '/project/$projectId'
       preLoaderRoute: typeof AuthenticatedProjectProjectIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/project_/$projectId/variables': {
+      id: '/_authenticated/project_/$projectId/variables'
+      path: '/project/$projectId/variables'
+      fullPath: '/project/$projectId/variables'
+      preLoaderRoute: typeof AuthenticatedProjectProjectIdVariablesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/project_/$projectId/rest/stubs': {
@@ -232,6 +309,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedProjectProjectIdRoute: typeof AuthenticatedProjectProjectIdRoute
+  AuthenticatedProjectProjectIdVariablesRoute: typeof AuthenticatedProjectProjectIdVariablesRoute
   AuthenticatedProjectProjectIdRestStubsRoute: typeof AuthenticatedProjectProjectIdRestStubsRoute
   AuthenticatedProjectProjectIdRestStubsStubIdRoute: typeof AuthenticatedProjectProjectIdRestStubsStubIdRoute
   AuthenticatedProjectProjectIdRestStubsCreateRoute: typeof AuthenticatedProjectProjectIdRestStubsCreateRoute
@@ -241,6 +319,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedProjectProjectIdRoute: AuthenticatedProjectProjectIdRoute,
+  AuthenticatedProjectProjectIdVariablesRoute:
+    AuthenticatedProjectProjectIdVariablesRoute,
   AuthenticatedProjectProjectIdRestStubsRoute:
     AuthenticatedProjectProjectIdRestStubsRoute,
   AuthenticatedProjectProjectIdRestStubsStubIdRoute:
@@ -253,10 +333,24 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface AboutRouteChildren {
+  AboutComparisonRoute: typeof AboutComparisonRoute
+  AboutOverviewRoute: typeof AboutOverviewRoute
+  AboutStubsRoute: typeof AboutStubsRoute
+}
+
+const AboutRouteChildren: AboutRouteChildren = {
+  AboutComparisonRoute: AboutComparisonRoute,
+  AboutOverviewRoute: AboutOverviewRoute,
+  AboutStubsRoute: AboutStubsRoute,
+}
+
+const AboutRouteWithChildren = AboutRoute._addFileChildren(AboutRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  AboutRoute: AboutRoute,
+  AboutRoute: AboutRouteWithChildren,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport

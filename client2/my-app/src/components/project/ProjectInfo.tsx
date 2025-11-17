@@ -39,7 +39,45 @@ const ProjectInfo = ({ ProjectId }: { ProjectId: string }) => {
                             {"Rest Stubs"}
                         </Link>{" "}
                     </Flex>
+                    <Flex
+                        flex={1}
+                        alignItems={"center"}
+                        border={"1px"}
+                        borderColor={"gray.600"}
+                        p={2}
+                        borderRadius={"lg"}
+                        justifyContent={"space-between"}
+                    >
+                        <Link as={TanstackLink}
+                            to={`/project/${ProjectId}/rest/stubs/refactorme`}
+                            color={getColor()}
+                            variant="underline"
+                            colorPalette="teal"
+                        >
+                            {"GRPC Stubs"}
+                        </Link>{" "}
+                    </Flex>
+                    <Flex
+                        flex={1}
+                        alignItems={"center"}
+                        border={"1px"}
+                        borderColor={"gray.600"}
+                        p={2}
+                        borderRadius={"lg"}
+                        justifyContent={"space-between"}
+                    >
+                        <Link as={TanstackLink}
+                            to={`/project/${ProjectId}/rest/stubs/refactorme`}
+                            color={getColor()}
+                            variant="underline"
+                            colorPalette="teal"
+                        >
+                            {"Kafka Stubs"}
+                        </Link>{" "}
+                    </Flex>
                 </Flex>
+                <Text color={getColor()}>User role: Project Admin</Text>
+                <Text color={getColor()}>Project token: abcdefg16</Text>
             </Stack>
         </>
     )

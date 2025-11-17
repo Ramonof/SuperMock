@@ -3,9 +3,10 @@ import RestStubFullForm from "@/components/stub/rest/RestStubFullForm"
 import type { RestStub } from "@/components/stub/rest/RestStubList"
 import RestStubList from "@/components/stub/rest/RestStubList"
 import StubsInfo from "@/components/stub/rest/StubsInfo"
-import { Stack, Container, VStack, HStack, Grid, GridItem, Flex, Box } from "@chakra-ui/react"
+import { Stack, Container, VStack, HStack, Grid, GridItem, Flex, Box, Text, Link } from "@chakra-ui/react"
 import { createFileRoute } from "@tanstack/react-router"
 import { useState } from "react"
+import { Link as TanstackLink } from "@tanstack/react-router";
 
 export const Route = createFileRoute('/_authenticated/project_/$projectId/rest/stubs_/$stubId')({
   component: RestStubs,
@@ -35,6 +36,20 @@ function RestStubs() {
           </GridItem>
           <GridItem pl='2' bg='pink.300' area={'nav'}>
             Nav
+            <Box>
+              <Link as={TanstackLink}
+                  to={`/project/${projectId}/rest/stubs/${stubId}`}
+              >
+                    Stubs
+              </Link>{" "}
+              </Box>
+              <Box>
+              <Link as={TanstackLink}
+                  to={`/project/${projectId}/variables`}
+              >
+                    Variables
+              </Link>{" "}
+            </Box>
           </GridItem>
           <GridItem pl='2' area={'main'}>
             <Grid templateColumns="repeat(2, 1fr)" gap="6">
