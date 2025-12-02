@@ -43,7 +43,8 @@ function RootLayout() {
 						display={{ base: "none", sm: "flex" }}
 					>
         <Link to="/" className="[&.active]:font-bold">
-          LaMock
+          
+          {colorMode === "light" ? <img src='/LaLogo.png' alt='logo' width={120} height={100}/> : <img src='/LaLogoDark.png' alt='logo' width={120} height={100}/>}
         </Link>{' '}
         <Link to="/about" className="[&.active]:font-bold">
           About
